@@ -83,18 +83,6 @@ Custom label for the trigger button. Only visible with the `text` and `tab` trig
 <script src="..." data-key="..." data-trigger="text" data-trigger-text="Report a Bug?"></script>
 ```
 
-### `data-endpoint`
-
-Override the API endpoint the widget talks to. Useful for self-hosted or staging environments.
-
-```html
-<script src="..." data-key="..." data-endpoint="https://your-instance.convex.site"></script>
-```
-
-<Info>
-  You typically don't need to set `data-endpoint` — it defaults to Clayzo's production backend.
-</Info>
-
 ## Custom Trigger (BYO Button)
 
 Set `data-trigger="none"` to hide the default widget button, then call `Clayzo.open()` from anywhere in your UI:
