@@ -1,0 +1,115 @@
+---
+title: "Customization"
+description: "Customize the look, feel, and behavior of the feedback widget."
+---
+
+Every aspect of the widget's appearance can be configured via `data-*` attributes on the script tag. No code changes required.
+
+## Full Example
+
+```html
+<script
+  src="https://client.clayzo.com/sdk/widget.js"
+  data-key="sk_live_..."
+  data-theme="dark"
+  data-accent="#6366f1"
+  data-position="bottom-left"
+  data-trigger="tab"
+  data-trigger-text="Report a Bug?"
+></script>
+```
+
+## Options Reference
+
+### `data-theme`
+
+Controls the widget's color scheme.
+
+| Value | Description |
+|-------|-------------|
+| `auto` | Matches the user's system preference **(default)** |
+| `light` | Light background, dark text |
+| `dark` | Dark background, light text |
+
+```html
+<script src="..." data-key="..." data-theme="dark"></script>
+```
+
+### `data-accent`
+
+Sets the accent color used for buttons, highlights, and the element selector. Accepts any hex color.
+
+**Default:** `#01adae`
+
+```html
+<script src="..." data-key="..." data-accent="#6366f1"></script>
+```
+
+### `data-position`
+
+Controls which corner the widget appears in.
+
+| Value | Description |
+|-------|-------------|
+| `bottom-right` | Bottom-right corner **(default)** |
+| `bottom-left` | Bottom-left corner |
+
+```html
+<script src="..." data-key="..." data-position="bottom-left"></script>
+```
+
+### `data-trigger`
+
+Controls the style of the trigger button that opens the feedback panel.
+
+| Value | Description |
+|-------|-------------|
+| `fab` | Floating action button with an icon **(default)** |
+| `text` | Inline text button |
+| `tab` | Tab attached to the edge of the screen |
+
+```html
+<script src="..." data-key="..." data-trigger="tab"></script>
+```
+
+### `data-trigger-text`
+
+Custom label for the trigger button. Only visible with the `text` and `tab` trigger styles.
+
+**Default:** `Feedback`
+
+```html
+<script src="..." data-key="..." data-trigger="text" data-trigger-text="Report a Bug?"></script>
+```
+
+### `data-endpoint`
+
+Override the API endpoint the widget talks to. Useful for self-hosted or staging environments.
+
+```html
+<script src="..." data-key="..." data-endpoint="https://your-instance.convex.site"></script>
+```
+
+<Info>
+  You typically don't need to set `data-endpoint` — it defaults to Clayzo's production backend.
+</Info>
+
+## Identifying Users
+
+By default, feedback is submitted anonymously. To attach user identity, use the [programmatic API](/programmatic-api) instead of auto-initialization:
+
+```html
+<script src="https://client.clayzo.com/sdk/widget.js"></script>
+<script>
+  Clayzo.init({
+    apiKey: "sk_live_...",
+    user: {
+      id: "usr_123",
+      name: "Jane Doe",
+      email: "jane@example.com"
+    }
+  });
+</script>
+```
+
+The user's name and email will appear alongside their feedback in the Clayzo dashboard.

@@ -1,0 +1,74 @@
+---
+title: "Dashboard"
+description: "View and manage customer feedback in the Clayzo dashboard."
+---
+
+All feedback submitted through the SDK is available in the **Customer Feedback** tab inside the Review sidebar of your workspace.
+
+## Inbox
+
+The feedback inbox shows all submissions with:
+
+- **Type indicator** — Bug, Idea, or Feedback
+- **Status** — Open, Active, Resolved, or Closed
+- **User info** — Name and page URL
+- **Attachment icons** — Element context, screenshot, session replay, AI fix plan
+
+### Filtering
+
+Use the filter bar to narrow results:
+
+| Filter | Options |
+|--------|---------|
+| **Status** | Open, Active, Resolved, Closed |
+| **Type** | Bugs, Ideas, Feedback |
+| **Search** | Filter by text, page URL, or user name |
+
+Filters can be combined (e.g. show only open bugs). The default view shows **Open** items.
+
+## Detail Panel
+
+Click any item to open the detail drawer.
+
+### AI Fix Plan
+
+An AI-generated analysis and action plan based on the feedback text, element context, and page URL. Copy the full plan to hand off to your engineering team.
+
+<Tip>
+  Make sure the `GEMINI_API_KEY` environment variable is set in your Convex deployment for AI fix plans to generate.
+</Tip>
+
+### Session Replay
+
+If session replay is enabled, the full recording loads automatically when the panel opens. Watch exactly what the user experienced leading up to their feedback.
+
+### Element Context
+
+When a user attaches an element, the panel shows:
+
+| Field | Description |
+|-------|-------------|
+| **React component** | Component name and full component stack |
+| **Props** | Serialized component props |
+| **CSS selector** | Full selector path |
+| **Element text** | Visible text content |
+| **Layout** | Position and dimensions |
+
+### Screenshot
+
+A screenshot captured at the moment of submission.
+
+### Environment
+
+Browser user agent and viewport dimensions.
+
+## Managing Status
+
+Update the status of any feedback item from the detail panel header.
+
+| Status | Meaning |
+|--------|---------|
+| **Open** | New, unreviewed |
+| **Active** | Being worked on |
+| **Resolved** | Fixed or addressed |
+| **Closed** | Won't fix or duplicate |

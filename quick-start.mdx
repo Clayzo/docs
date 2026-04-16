@@ -1,0 +1,55 @@
+---
+title: "Quick Start"
+description: "Get the Clayzo feedback widget running on your site in under 2 minutes."
+---
+
+<Steps>
+  <Step title="Generate an API key">
+    Go to **Settings → Integrations** in your Clayzo workspace and find the **Customer Feedback SDK** section. Click **Generate API Key**.
+
+    Copy the key — it starts with `sk_live_`.
+  </Step>
+  <Step title="Add the script tag">
+    Paste this before the closing `</body>` tag on your site:
+
+    ```html
+    <script
+      src="https://client.clayzo.com/sdk/widget.js"
+      data-key="YOUR_API_KEY"
+    ></script>
+    ```
+
+    Replace `YOUR_API_KEY` with the key you generated.
+  </Step>
+  <Step title="Done">
+    A feedback button appears in the bottom-right corner of your site. Users can click it to report bugs, share ideas, or leave feedback.
+  </Step>
+</Steps>
+
+<Info>
+  The widget is fully isolated using Shadow DOM — it won't affect your site's styles or be affected by them.
+</Info>
+
+## What Gets Captured
+
+Every submission automatically includes:
+
+| Data | Description |
+|------|-------------|
+| **Page URL** | The page the user was on |
+| **Screenshot** | Captured at the moment of submission |
+| **Element context** | CSS selector, React component name, props, and component stack (if the user attaches an element) |
+| **Session replay** | Full session recording (if enabled in SDK settings) |
+| **Browser info** | User agent and viewport dimensions |
+
+## Enable Session Replays
+
+Session replays are off by default. To enable them:
+
+1. Go to **Settings → Integrations** in Clayzo
+2. Find the **Customer Feedback SDK** section
+3. Toggle **Session Replay** on
+
+<Tip>
+  Once enabled, each feedback submission includes a full session replay viewable in the Clayzo dashboard.
+</Tip>

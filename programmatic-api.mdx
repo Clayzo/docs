@@ -1,0 +1,118 @@
+---
+title: "Programmatic API"
+description: "Control the feedback widget with JavaScript for advanced use cases."
+---
+
+For full control over initialization, user identity, and lifecycle, use the JavaScript API instead of (or alongside) `data-*` attributes.
+
+## `Clayzo.init(options)`
+
+Initialize the widget. If a widget is already active, it will be destroyed first.
+
+```html
+<script src="https://client.clayzo.com/sdk/widget.js"></script>
+<script>
+  Clayzo.init({
+    apiKey: "sk_live_...",
+    theme: "dark",
+    accent: "#6366f1",
+    position: "bottom-left",
+    triggerStyle: "tab",
+    triggerText: "Help us improve",
+    user: {
+      id: "usr_123",
+      name: "Jane Doe",
+      email: "jane@example.com"
+    },
+    onSubmit: (feedback) => {
+      console.log("Feedback submitted:", feedback.type, feedback.text);
+    }
+  });
+</script>
+```
+
+### Options
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `apiKey` | `string` | — | **Required.** Your SDK API key |
+| `apiEndpoint` | `string` | Clayzo production | Override the backend URL |
+| `theme` | `"light" \| "dark" \| "auto"` | `"auto"` | Color scheme |
+| `accent` | `string` | `"#01adae"` | Accent color (hex) |
+| `position` | `"bottom-right" \| "bottom-left"` | `"bottom-right"` | Widget corner |
+| `triggerStyle` | `"fab" \| "text" \| "tab"` | `"fab"` | Trigger button style |
+| `triggerText` | `string` | `"Feedback"` | Trigger button label |
+| `user` | `object` | — | End-user identity |
+| `user.id` | `string` | — | Your internal user ID |
+| `user.name` | `string` | — | Display name |
+| `user.email` | `string` | — | Email address |
+| `onSubmit` | `function` | — | Callback after successful submission |
+
+## `Clayzo.destroy()`
+
+Remove the widget from the page and stop all recording.
+
+```javascript
+Clayzo.destroy();
+```
+
+<Warning>
+  If you use `data-key` on the script tag **and** call `Clayzo.init()`, the programmatic call takes precedence.
+</Warning>
+
+## Single-Page App Usage
+
+For SPAs (React, Next.js, Vue, etc.), initialize in your app's root component and destroy on unmount:
+
+<Tabs>
+  <Tab title="React">
+    ```jsx
+    import { useEffect } from "react";
+
+    function App() {
+      useEffect(() => {
+        if (window.Clayzo) {
+          window.Clayzo.init({
+            apiKey: "sk_live_...",
+            user: { id: currentUser.id, name: currentUser.name }
+          });
+        }
+        return () => window.Clayzo?.destroy();
+      }, []);
+
+      return <YourApp />;
+    }
+    ```
+  </Tab>
+  <Tab title="Vue">
+    ```vue
+    <script setup>
+    import { onMounted, onUnmounted } from "vue";
+
+    onMounted(() => {
+      if (window.Clayzo) {
+        window.Clayzo.init({
+          apiKey: "sk_live_...",
+          user: { id: currentUser.id, name: currentUser.name }
+        });
+      }
+    });
+
+    onUnmounted(() => {
+      window.Clayzo?.destroy();
+    });
+    </script>
+    ```
+  </Tab>
+  <Tab title="Script tag">
+    ```html
+    <script src="https://client.clayzo.com/sdk/widget.js"></script>
+    <script>
+      Clayzo.init({
+        apiKey: "sk_live_...",
+        user: { id: "usr_123", name: "Jane Doe" }
+      });
+    </script>
+    ```
+  </Tab>
+</Tabs>
