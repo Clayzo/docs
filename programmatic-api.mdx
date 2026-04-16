@@ -40,13 +40,35 @@ Initialize the widget. If a widget is already active, it will be destroyed first
 | `theme` | `"light" \| "dark" \| "auto"` | `"auto"` | Color scheme |
 | `accent` | `string` | `"#01adae"` | Accent color (hex) |
 | `position` | `"bottom-right" \| "bottom-left"` | `"bottom-right"` | Widget corner |
-| `triggerStyle` | `"fab" \| "text" \| "tab"` | `"fab"` | Trigger button style |
+| `triggerStyle` | `"fab" \| "text" \| "tab" \| "none"` | `"fab"` | Trigger button style. Use `"none"` to hide and call `Clayzo.open()` yourself |
 | `triggerText` | `string` | `"Feedback"` | Trigger button label |
 | `user` | `object` | — | End-user identity |
 | `user.id` | `string` | — | Your internal user ID |
 | `user.name` | `string` | — | Display name |
 | `user.email` | `string` | — | Email address |
 | `onSubmit` | `function` | — | Callback after successful submission |
+
+## `Clayzo.open()`
+
+Open the feedback panel programmatically. Use this when you've set `triggerStyle: "none"` and want to trigger the panel from your own UI.
+
+```javascript
+Clayzo.open();
+```
+
+For example, from a button in your footer:
+
+```html
+<button onclick="Clayzo.open()">Report a Bug</button>
+```
+
+Or from a React component:
+
+```jsx
+<button onClick={() => window.Clayzo.open()}>
+  Send Feedback
+</button>
+```
 
 ## `Clayzo.destroy()`
 

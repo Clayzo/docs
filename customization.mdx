@@ -67,6 +67,7 @@ Controls the style of the trigger button that opens the feedback panel.
 | `fab` | Floating action button with an icon **(default)** |
 | `text` | Inline text button |
 | `tab` | Tab attached to the edge of the screen |
+| `none` | No trigger — use your own button with `Clayzo.open()` |
 
 ```html
 <script src="..." data-key="..." data-trigger="tab"></script>
@@ -93,6 +94,23 @@ Override the API endpoint the widget talks to. Useful for self-hosted or staging
 <Info>
   You typically don't need to set `data-endpoint` — it defaults to Clayzo's production backend.
 </Info>
+
+## Custom Trigger (BYO Button)
+
+Set `data-trigger="none"` to hide the default widget button, then call `Clayzo.open()` from anywhere in your UI:
+
+```html
+<script
+  src="https://client.clayzo.com/sdk/widget.js"
+  data-key="sk_live_..."
+  data-trigger="none"
+></script>
+
+<!-- Your own button, anywhere on the page -->
+<button onclick="Clayzo.open()">Send Feedback</button>
+```
+
+This works from any element — a footer link, a nav item, a help menu, a floating button you built yourself. The full feedback panel (element selection, screenshots, session replay) still works exactly the same.
 
 ## Identifying Users
 
