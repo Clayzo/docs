@@ -1,0 +1,199 @@
+---
+title: "Writing documents"
+description: "The animation document format, and how to author one in TypeScript."
+---
+
+An animation is a JSON document. You don't write the JSON by hand: you write a short TypeScript script against the types in `@clayzo/animation/authoring`, run it, and it writes the file. The types make malformed documents hard to produce, and validation names the node and field when something is still wrong.
+
+Agents with the authoring skill do all of this. This page is for reading what they produce, or for writing your own.
+
+## A complete script
+
+Save as `author.ts` and run with `npx tsx author.ts`. It writes `animations/bouncing-dot.json`.
+
+```ts author.ts
+import { writeFileSync } from "node:fs";
+import {
+  ANIMATION_DOCUMENT_VERSION,
+  assertValidAnimationDocument,
+  constant,
+  withComputedRevision,
+  type AnimationDocument,
+  type Color,
+  type SceneNode,
+  type Transform25D,
+} from "@clayzo/animation/authoring";
+
+const WIDTH = 1280;
+const HEIGHT = 720;
+const TPS = 240; // ticks per second
+const DURATION = TPS * 2; // two seconds
+
+const rgb = (r: number, g: number, b: number): Color => ({ r: r / 255, g: g / 255, b: b / 255, a: 1 });
+const BACKGROUND = rgb(16, 18, 24);
+const ACCENT = rgb(1, 173, 174);
+
+// Every node needs a full transform; there are no partial ones.
+const transform = (x: number, y: number): Transform25D => ({
+  position: constant({ x, y, z: 0 }),
+  anchor: constant({ x: 0, y: 0, z: 0 }),
+  scale: constant({ x: 1, y: 1, z: 1 }),
+  rotation: constant({ x: 0, y: 0, z: 0 }),
+  skew: constant({ x: 0, y: 0 }),
+});
+
+// The fields every node repeats.
+const base = (id: string, x: number, y: number) => ({
+  id,
+  name: id,
+  visible: true,
+  inTick: 0,
+  outTick: DURATION,
+  opacity: constant(1),
+  transform: transform(x, y),
+  blendMode: "normal" as const,
+});
+
+// Frames are transparent wherever nothing is drawn, so draw the background.
+const background: SceneNode = {
+  type: "rect",
+  ...base("background", WIDTH / 2, HEIGHT / 2),
+  size: constant({ width: WIDTH, height: HEIGHT }),
+  cornerRadius: constant(0),
+  style: { fill: { color: constant(BACKGROUND), opacity: constant(1) } },
+};
+
+const ease = { x1: 0.4, y1: 0, x2: 0.2, y2: 1 };
+
+const dot: SceneNode = {
+  type: "ellipse",
+  ...base("dot", 240, HEIGHT / 2),
+  size: constant({ width: 160, height: 160 }),
+  style: { fill: { color: constant(ACCENT), opacity: constant(1) } },
+  transform: {
+    ...transform(240, HEIGHT / 2),
+    position: {
+      kind: "keyframed",
+      keyframes: [
+        { id: "dot-position-0", tick: 0, value: { x: 240, y: HEIGHT / 2, z: 0 }, interpolation: "bezier", easing: ease },
+        { id: "dot-position-1", tick: DURATION / 2, value: { x: WIDTH - 240, y: HEIGHT / 2, z: 0 }, interpolation: "bezier", easing: ease },
+        { id: "dot-position-2", tick: DURATION, value: { x: 240, y: HEIGHT / 2, z: 0 }, interpolation: "hold" },
+      ],
+    },
+  },
+};
+
+const document = withComputedRevision({
+  version: ANIMATION_DOCUMENT_VERSION,
+  id: "bouncing-dot",
+  revision: "",
+  name: "Bouncing dot",
+  canvas: { width: WIDTH, height: HEIGHT, pixelAspectRatio: 1, backgroundColor: BACKGROUND },
+  timing: {
+    ticksPerSecond: TPS,
+    frameRate: { numerator: 30, denominator: 1 },
+    durationTicks: DURATION,
+    displayStartTick: 0,
+  },
+  assets: {},
+  compositions: {
+    main: {
+      id: "main",
+      name: "Main",
+      width: WIDTH,
+      height: HEIGHT,
+      durationTicks: DURATION,
+      nodes: { background, dot },
+      rootNodeIds: ["background", "dot"],
+    },
+  },
+  rootCompositionId: "main",
+  components: {},
+  markers: [],
+  capabilities: { required: [], optional: [], unsupportedPolicy: "warn" },
+} satisfies AnimationDocument);
+
+assertValidAnimationDocument(document);
+writeFileSync("animations/bouncing-dot.json", JSON.stringify(document, null, 2));
+console.log(`wrote animations/bouncing-dot.json (revision ${document.revision})`);
+```
+
+Render a sheet to see it move:
+
+```bash
+npx clayzo render-frame animations/bouncing-dot.json sheet.png --samples 4 --max-dimension 320
+```
+
+## The parts of a document
+
+| Field | What it holds |
+| --- | --- |
+| `canvas` | Width, height, pixel aspect ratio, and a background colour that is metadata only |
+| `timing` | `ticksPerSecond`, the playback `frameRate`, `durationTicks` and `displayStartTick` |
+| `assets` | Fonts and images by id. See [Fonts and assets](/authoring/fonts-and-assets) |
+| `compositions` | Named scenes, each with `nodes` by id and `rootNodeIds` in back-to-front order |
+| `rootCompositionId` | Which composition plays |
+| `interaction` | Inputs, hit areas and bindings. See [Interactivity](/authoring/interactivity) |
+| `revision` | A hash of the document's canonical form, stamped by `withComputedRevision` |
+
+A node is only drawn if it's reachable from `rootNodeIds`. That is how a node used only as a clip path, a matte source or an effect input stays out of the frame.
+
+## Time is in ticks
+
+`ticksPerSecond` is the document's time base and 240 is conventional. `frameRate` is what it plays at. Every `inTick`, `outTick` and keyframe `tick` is in ticks. At 240 ticks per second and 30 fps a frame is 8 ticks, so keyframes off that grid land between frames and never display exactly. Author at the frame rate the piece will play at and snap keyframes to it.
+
+## Animatables
+
+Every animated property has one of two shapes:
+
+```ts
+constant(value)
+{ kind: "keyframed", keyframes: [{ id, tick, value, interpolation }] }
+```
+
+`interpolation` is `"hold"`, `"linear"`, `"bezier"` or `"spring"`. A `bezier` keyframe needs `easing: { x1, y1, x2, y2 }`; a `spring` keyframe needs `spring: { mass, stiffness, damping }`. Interpolation describes the segment leaving that keyframe, so the last keyframe should be `"hold"`. A track's first value holds before its first keyframe. Keyframe ids must be unique; derive them from the node id, the property and the index.
+
+Colours are `{ r, g, b, a }` with channels from 0 to 1, not 0 to 255.
+
+## Nodes
+
+| Type | Draws |
+| --- | --- |
+| `rect`, `ellipse`, `polystar`, `arc` | Shapes with a `size`, centred on the node's position, with a `style` of fill, gradient fill and stroke |
+| `path` | Cubic Bézier contours in local space; `parseSvgPath` turns SVG path data into one |
+| `text` | A run of text in a box, with a font asset or a family name |
+| `image` | An image asset fitted into a box |
+| `group` | Children, drawn in order, sharing a transform; `isolation: true` fades overlapping children as one |
+| `matte` | Uses one node's alpha or luminance to cut another (CanvasKit player only) |
+| `effect` | Applies an effect to its `inputId` node, which must not be a root node |
+| `camera` | A 2.5D camera for depth and parallax |
+| `null` | An invisible transform to parent other nodes to |
+| `trim`, `offset`, `repeater`, `round-corners` | Vector operators applied to a path |
+
+Every node has the same base fields: `id`, `name`, `visible`, `inTick`, `outTick`, `opacity`, `blendMode` and a full `transform` with all five of `position`, `anchor`, `scale`, `rotation` and `skew`. The transform is position minus anchor, scaled, rotated (`rotation.z` in degrees, clockwise on screen), then translated. Child transforms compose with their parent's.
+
+## Effects
+
+An `effect` node names its effect and a `parameters` array, matched by name. Available effects:
+
+`blur`, `drop-shadow`, `depth-blur`, `color-matrix`, `brightness-contrast`, `glass`, `refraction`, `dithering`, `duotone`, `pixelation`, `mesh-gradient` and `custom-sksl` for a shader you write.
+
+Effects chain: an effect's `inputId` may be another effect. `glass` and `refraction` read what is already drawn beneath them, so they must come later in `rootNodeIds` than what they refract. `number` and `point` parameters need `minimum` and `maximum`. A parameter name that doesn't match is not an error; the effect uses its default. The authoring skill carries the full parameter table for every effect.
+
+## Things that bite
+
+- **Frames are transparent** wherever nothing is drawn. Draw a full-canvas `rect` first, or exports come out on black.
+- **Node `opacity` below 1 costs an offscreen layer per frame.** Animate `style.fill.opacity` on solid shapes instead, and reserve node `opacity` for groups that must fade as one.
+- **Overlapping children at partial opacity double up** unless the group has `isolation: true`.
+- **A composition needs `width`, `height` and `durationTicks`**, not only `nodes` and `rootNodeIds`.
+- **Write the file with `writeFileSync`.** A top-level `await` fails under `tsx` in a CommonJS project, with an error that names esbuild rather than your script.
+- **Text `wrap` defaults to wrapping inside the box.** Set `wrap: "none"` on single lines.
+
+## Validate and stamp, every time
+
+```ts
+assertValidAnimationDocument(document);   // throws with the node and field
+const stamped = withComputedRevision(document);
+```
+
+A document's identity is its revision. `clayzo review` binds its findings to one, and the players and exporter treat two documents with the same revision as the same document. A script that writes a document without stamping it hands downstream tools a revision that doesn't match the contents.

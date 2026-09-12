@@ -1,0 +1,42 @@
+---
+title: "render-frame"
+description: "Render one frame, a labelled sheet of frames, or the loop seam."
+---
+
+```text
+clayzo render-frame <document.json> [output.png] [options]
+```
+
+| Option | Description |
+| --- | --- |
+| `--tick <n>` | Render the frame at this tick. Default 0. |
+| `--samples <n>` | Spread `n` ticks evenly across the document into one labelled sheet. |
+| `--seam` | Render the last displayed frame beside the first and report their difference. |
+| `--max-dimension <px>` | Bound the longer side of the render. |
+| `--full-resolution` | Render at the document's size. Conflicts with `--max-dimension`. |
+
+## Examples
+
+A sheet to judge motion, the default check after any change:
+
+```bash
+npx clayzo render-frame animations/hero.json sheet.png --samples 6 --max-dimension 320
+```
+
+An exact frame at full size, for a poster or an OG image:
+
+```bash
+npx clayzo render-frame animations/hero.json poster.png --tick 300 --full-resolution
+```
+
+A loop seam:
+
+```bash
+npx clayzo render-frame animations/loop.json seam.png --seam
+```
+
+## Output
+
+JSON on stdout with the output path, the ticks rendered, the dimensions and a diagnostics count. Sampled ticks from `--samples` are spread evenly and not snapped to frames; use `--tick` for an exact frame. Parallel calls are cheap.
+
+Requires a sign in.

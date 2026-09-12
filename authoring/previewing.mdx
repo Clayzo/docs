@@ -1,0 +1,81 @@
+---
+title: "Previewing and review"
+description: "Frame sheets, the preview server, loop seams and the review packet."
+---
+
+A document that validates is not a document that looks right. Look at frames after every meaningful change. Agents with the authoring skill do this on their own; these are the same tools.
+
+## Frame sheets
+
+```bash
+npx clayzo render-frame animations/hero.json sheet.png --samples 6 --max-dimension 320
+```
+
+Six ticks spread evenly across the document, laid out as one labelled sheet. This is the default check: it costs about as much as a single frame, and it shows whether anything moves. `--max-dimension` bounds the longer side, and 320 is enough to judge composition and motion.
+
+One exact frame:
+
+```bash
+npx clayzo render-frame animations/hero.json frame.png --tick 300
+```
+
+`--tick` is in ticks, not frames or seconds. At the conventional 240 ticks per second and 30 fps, one frame is 8 ticks.
+
+Both commands print JSON to stdout with the output path, the ticks rendered, the dimensions and a diagnostics count. A diagnostics count above zero is worth a look: a frame that renders is not a frame that rendered correctly.
+
+## The preview server
+
+```bash
+npx clayzo preview animations/hero.json
+```
+
+Serves one page: the document playing, scrubbable, with an export panel. Open the URL it prints.
+
+| Control | Action |
+| --- | --- |
+| Space | Play or pause |
+| Left and right arrows | Step one frame |
+| Drag the timeline | Scrub |
+| Shift-drag the timeline | Set an export range |
+
+The preview is the fastest way to export anything with glass, refraction or a custom shader, because frames are rendered on your GPU instead of interpreted per pixel in Node. The rest of the pipeline is the same. See [Exporting media](/exporting/media).
+
+The server holds a port until it's stopped, and prints its process id for exactly that:
+
+```text
+clayzo preview  http://127.0.0.1:53219/
+pid 85619 · ctrl-c, or: kill 85619
+```
+
+It also stops itself after ten minutes with no browser attached. Pass `--port` to listen on a fixed port.
+
+## Loops
+
+```bash
+npx clayzo render-frame animations/loop.json seam.png --seam
+```
+
+Renders the last displayed frame beside the first and reports their difference against an ordinary frame step, so the number means something. A seam you can see in the sheet, you can see in the loop.
+
+## The review packet
+
+```bash
+npx clayzo review animations/hero.json review/
+```
+
+Writes a revision-bound packet: `review.json`, a `contact-sheet.png`, and a `frames/` folder. Frames are sampled across the timeline and rendered on checker, light and dark backgrounds (`--backgrounds` changes the set), then checked for blank frames, clipping, contrast and motion. Heavier than a frame sheet; worth running before shipping rather than on every edit.
+
+In `review.json`, `analysis.diagnostics` is the list that matters. Per-frame renderer messages such as missing fonts live under `frames[].rendererDiagnostics`. The packet records the document revision it reviewed, so a review is a statement about one exact document.
+
+## Coverage for the WebGL player
+
+If your site uses `@clayzo/webgl-player`, confirm it can draw what you authored. Mattes, nested clips and colour-space intrinsics in custom shaders need the CanvasKit player.
+
+```ts
+import { checkCoverage } from "@clayzo/webgl-player";
+
+const coverage = await checkCoverage(document);
+if (!coverage.supported) console.warn(coverage.reasons.join("; "));
+```
+
+An unsupported construct is not an error at play time. The node is not drawn, and nobody finds out until a user does. Run this check in CI over everything you ship.

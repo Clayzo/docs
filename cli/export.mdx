@@ -1,0 +1,42 @@
+---
+title: "export"
+description: "Export mp4, mov, gif, webm or a PNG sequence."
+---
+
+```text
+clayzo export <document.json> <output> [options]
+```
+
+See [Exporting media](/exporting/media) for guidance on formats, quality and speed.
+
+| Option | Description |
+| --- | --- |
+| `--format <mp4\|mov\|gif\|webm\|png-sequence>` | Container. Required; the output extension is not read. |
+| `--backend <cpu\|browser>` | `browser` rasterizes in a tab on this machine, far faster for glass and custom shaders. |
+| `--tier <draft\|review\|final\|master>` | Encoder quality tier. |
+| `--quality <0..100>` | Encoder quality. Default 85. |
+| `--supersample <1..4>` | Render at a multiple of the output size and downsample. |
+| `--alpha <preserve\|flatten>` | Keep transparency (mov, webm, png) or flatten onto `--flatten-color`. |
+| `--flatten-color <#RRGGBB>` | Colour to flatten transparency onto. |
+| `--codec <name>` | Override the codec for the chosen format. |
+| `--start <tick> --end <tick>` | Export a tick range instead of the whole document. |
+| `--step <ticks>` | Ticks between frames. Default: one frame at the document's frame rate. |
+| `--parallelism <n>` | Worker threads for frame rendering. |
+| `--max-dimension <px>` | Bound the longer side of the output. |
+| `--full-resolution` | Render at the document's size. Conflicts with `--max-dimension`. |
+| `--progress-preview <file.png>` | Where to write the progress sheet. |
+| `--no-progress` | Don't write a progress sheet. |
+| `--no-verify` | Skip decoding the result to verify it. |
+
+## Examples
+
+```bash
+npx clayzo export animations/hero.json hero.mp4 --format mp4 --tier final
+npx clayzo export animations/badge.json badge.mov --format mov --alpha preserve
+npx clayzo export animations/hero.json hero.webm --format webm --backend browser
+npx clayzo export animations/hero.json frames/ --format png-sequence --start 0 --end 480
+```
+
+Progress with an estimate prints to stderr. A JSON result with the output path, frame count and verification status prints to stdout.
+
+Requires a sign in.

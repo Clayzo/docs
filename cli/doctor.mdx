@@ -1,0 +1,29 @@
+---
+title: "doctor and update"
+description: "Check authentication, compatibility and updates."
+---
+
+## doctor
+
+```text
+clayzo doctor [--updates] [--json]
+```
+
+Reports whether this machine is signed in, whether the installed packages and skills match each other and the CLI, and whether an update is available or required.
+
+| Option | Description |
+| --- | --- |
+| `--updates` | Force a fresh update check instead of using the cached one. |
+| `--json` | Print the full report as JSON. |
+
+Exit code `2` means an update is required before protected commands will run.
+
+## update
+
+```text
+clayzo update [--json]
+```
+
+Checks for updates and prints the exact command to upgrade every Clayzo package and the skills together. It doesn't change anything. Run the command it prints.
+
+Neither command needs a sign in.

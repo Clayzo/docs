@@ -1,0 +1,80 @@
+---
+title: "WebGL player"
+description: "The lightweight player. No setup, nothing to serve, about 250 KB compressed."
+---
+
+```bash
+npm install @clayzo/webgl-player
+```
+
+```ts
+import { createPlayer } from "@clayzo/webgl-player";
+
+const player = await createPlayer({ canvas, document, loop: true });
+player.play();
+```
+
+The engine is embedded in the package. There is no WASM file to stage, no CDN, and no network request other than the document's own assets.
+
+## Options
+
+`createPlayer` takes one options object:
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `canvas` | `HTMLCanvasElement` | The canvas to draw into. Required. |
+| `document` | `AnimationDocument` | The document to play. Required. |
+| `loaders` | `PlayerAssetLoaders` | Image and font loaders. By default assets are fetched by their `uri`. See [Fonts and assets](/authoring/fonts-and-assets). |
+| `interactive` | `boolean` | Run the document's pointer bindings. Default on for documents that declare interaction. |
+| `interactionElement` | `HTMLElement` | Listen for pointer events on this element instead of the canvas. |
+| `loop` | `boolean` | Loop playback. |
+| `resolution` | `"display"`, `"document"` or a number | Render at the canvas's displayed size (default), at the document's own size, or at a fixed scale. |
+| `pauseWhenOffscreen` | `boolean` | Stop drawing while the canvas is out of view. Default on. |
+| `onFrame` | `(stats) => void` | Called after each frame with draw counts and `frameMs`. |
+| `onError` | `(error) => void` | Called when a frame fails. |
+
+The promise resolves once fonts are loaded and the first frame can draw. Images stream in and trigger a redraw as they land.
+
+## The handle
+
+| Member | Description |
+| --- | --- |
+| `tick` | The current tick |
+| `playing` | Whether the clock is running |
+| `play()`, `pause()` | Start and stop the clock |
+| `seek(tick)` | Move to a tick; resolves when the frame is drawn |
+| `setInput(name, value)` | Set a declared input: a number, boolean, point or colour |
+| `fire(name)` | Fire a trigger input |
+| `dispose()` | Release everything. Call it when the canvas leaves the page. |
+
+## Fonts
+
+Register font files before creating players or checking coverage:
+
+```ts
+import { registerFont } from "@clayzo/webgl-player";
+
+registerFont("manrope", await bytesFrom("/fonts/Manrope-ExtraBold.ttf"));
+```
+
+The id matches the document's font asset id. Documents packaged as `.clayzo` carry their fonts and need none of this; see [Bundles](/exporting/bundles).
+
+## Coverage
+
+```ts
+import { checkCoverage } from "@clayzo/webgl-player";
+
+const { supported, reasons } = await checkCoverage(document);
+```
+
+Run it over every document you ship. See [Choosing a renderer](/playback/choosing-a-renderer).
+
+## Many players on one page
+
+Put as many players on a page as the design needs. Players share GPU resources behind the scenes, off-screen players stop drawing, and a player whose frame hasn't changed costs nothing. On a slow machine the page keeps every player moving at a lower but steady rate rather than letting one starve, and drops render resolution only when that actually helps.
+
+Rendering at the canvas's displayed size is the default. A 1920×1080 document shown in a 320 px card renders 320 px wide.
+
+## Resolution
+
+`resolution: "display"` renders to the canvas's CSS size times the device pixel ratio, capped at the document's size. `"document"` always renders at the document's size, which per-pixel effects such as dithering may want. A number is a fixed multiplier.

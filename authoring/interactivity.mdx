@@ -1,0 +1,81 @@
+---
+title: "Interactivity"
+description: "Pointer behaviour, host inputs and triggers, and what happens to them on export."
+---
+
+A document can react to the pointer and to values your page sets. Interactivity is declared in the document, not scripted, so it validates before it runs, behaves identically in both players, and survives every edit.
+
+## The three parts
+
+| Part | What it is |
+| --- | --- |
+| **Inputs** | Named channels your page can set: `number`, `boolean`, `trigger`, `point` or `color` |
+| **Hit areas** | Pointer targets measured from a node's drawn bounds, with an optional cursor |
+| **Bindings** | Small operator graphs that drive a property or an effect parameter from the pointer, an input, time or scroll |
+
+A binding **blends** with the keyframed value. `add` offsets it, `multiply` scales it, and `set` replaces it, which discards the timeline for that property. Prefer `add` or `multiply` on anything that also animates, so the idle loop keeps playing under a hover response.
+
+## Authoring with macros
+
+Eight macros cover what people ask for first. `withInteraction` applies them to a finished scene:
+
+```ts
+import {
+  withInteraction,
+  lookAtMacro,
+  cursorFollowMacro,
+  hoverLiftMacro,
+} from "@clayzo/animation/authoring";
+
+const document = withInteraction(scene, [
+  lookAtMacro({ nodeId: "head", span: 450, maximumDegrees: 14 }),
+  cursorFollowMacro({ nodeId: "pupil-left", span: 420, reach: 12 }),
+  hoverLiftMacro({ nodeId: "card", hitAreaId: "card-hit", shape: "rect", lift: 8 }),
+]);
+```
+
+| Macro | What it does |
+| --- | --- |
+| `cursorFollowMacro` | A node drifts toward the cursor and springs back |
+| `lookAtMacro` | A node turns toward the cursor, clamped so it can't spin |
+| `hoverLiftMacro` | A hit area plus a lift and scale on hover |
+| `pressSquashMacro` | Squashes while held, stiffer than hover |
+| `magneticMacro` | Pulled toward a nearby cursor, exactly zero beyond the radius |
+| `pointerFieldMacro` | A per-pixel effect reacts under the cursor |
+| `parallaxLayersMacro` | Layers drift by depth |
+| `colorOnHoverMacro` | A fill crossfades between two colours |
+
+Anything the macros don't cover goes in the same list as a raw binding. The authoring skill's pointer reference carries the judgement: what to blend, what to clamp, when to spring and when to damp.
+
+## Driving it from the page
+
+Both players expose the same two calls:
+
+```ts
+const player = await createPlayer({ canvas, document, interactive: true });
+
+player.setInput("progress", 0.6); // a number, boolean, point or colour input
+player.fire("celebrate");         // a trigger input
+```
+
+Interaction is on by default for any document that declares it. Pass `interactive: false` to play the timeline alone, which is what a thumbnail wants. Pointer positions are mapped from the canvas's CSS box, so rendering at a lower resolution never moves a hit area. By default the canvas receives pointer events; pass `interactionElement` to listen on a larger wrapper instead.
+
+A settled document with a still pointer costs nothing. Springs and damping integrate at a fixed rate, so a gesture feels the same on a 60 Hz and a 120 Hz display.
+
+## Checking it
+
+A frame sheet can't show a binding, because nothing is pointing at it. Use the preview:
+
+```bash
+npx clayzo preview animations/hero.json
+```
+
+Move the cursor deliberately through rest, approach, each hit area, press and leave. The states to catch are a hover pose indistinguishable from rest, and a binding wired to something nothing draws.
+
+## Exports ignore bindings
+
+<Warning>
+  Video, GIF and still exports render the timeline as authored. The interaction graph never runs, so every bound property exports at its keyframed value, not at its resting evaluation.
+</Warning>
+
+This decides how to author. A glow authored at full strength and bound to `multiply` by pointer proximity exports at full strength. Author the resting pose into the timeline and let bindings `add` to it. An interactive document must read correctly with the pointer away, because that is what every still, every export and every first paint shows.

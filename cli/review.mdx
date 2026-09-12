@@ -1,0 +1,28 @@
+---
+title: "review"
+description: "Write a revision-bound review packet: review.json, contact-sheet.png and frames/."
+---
+
+```text
+clayzo review <document.json> [output-directory] [options]
+```
+
+| Option | Description |
+| --- | --- |
+| `--backgrounds <a,b,c>` | Backgrounds to render each sample on. Default `checker,light,dark`. |
+| `--max-dimension <px>` | Bound the longer side of each frame. Default 512. |
+| `--full-resolution` | Render at the document's size. Conflicts with `--max-dimension`. |
+
+## What it writes
+
+| File | Contents |
+| --- | --- |
+| `review.json` | The document revision, the sampled ticks, `analysis.diagnostics` (blank frames, clipping, contrast, motion) and per-frame renderer diagnostics under `frames[].rendererDiagnostics` |
+| `contact-sheet.png` | Every sample on every background, labelled |
+| `frames/` | The individual frames |
+
+Samples are chosen across the timeline, weighted toward where keyframes are dense. Text documents normally carry a `text.shaping_fallback` diagnostic; it means deterministic glyph measurement was used and is not an error.
+
+Run it before shipping rather than after every edit; a frame sheet from [`render-frame`](/cli/render-frame) is the quick check.
+
+Requires a sign in.

@@ -1,0 +1,61 @@
+---
+title: "Exporting media"
+description: "Render a document to MP4, MOV, WebM, GIF or a PNG sequence."
+---
+
+```bash
+npx clayzo export animations/hero.json hero.mp4 --format mp4 --tier final
+```
+
+Export renders every frame with the same renderer the CanvasKit player uses, so a video is pixel-identical to full-fidelity playback. `--format` is required; the output extension isn't read.
+
+## Formats
+
+| Format | Alpha | Use it for |
+| --- | --- | --- |
+| `mp4` | No | Anywhere that takes video: social, ads, slides, email fallbacks |
+| `mov` | Yes | Overlays and compositing in video tools |
+| `webm` | Yes | Transparent video on the web |
+| `gif` | No | Where only GIF is accepted |
+| `png-sequence` | Yes | One PNG per frame, for compositing or your own encoder |
+
+For a single still, use [`render-frame`](/cli/render-frame) instead.
+
+## Quality
+
+`--tier` picks an encoder preset: `draft`, `review`, `final` or `master`. `--quality 0..100` sets the encoder quality directly (default 85). `--supersample 2` renders at twice the output size and downsamples, which sharpens thin strokes and small text at the cost of four times the pixels.
+
+`--alpha preserve` keeps transparency in the formats that support it; `--alpha flatten` composites onto `--flatten-color`. Frames are transparent wherever nothing is drawn, so a document without a full-canvas background rect exports on black in MP4 and on nothing in MOV. Draw the background.
+
+## Size and range
+
+| Option | Effect |
+| --- | --- |
+| `--max-dimension <px>` | Bound the longer side; the default for exports is the document size |
+| `--full-resolution` | Render at the document's size |
+| `--start <tick> --end <tick>` | Export a tick range |
+| `--step <ticks>` | Ticks between frames; default is one frame at the document's frame rate |
+
+## Speed
+
+Export cost is per layer, not per second. A flat document renders quickly on the CPU. Every node with opacity below 1, every isolated group, every drop shadow and every effect adds an offscreen pass per frame, and glass, refraction and custom shaders are evaluated per pixel. Progress with an estimate prints to stderr.
+
+If the first estimate is more than a minute, render on your GPU instead:
+
+```bash
+npx clayzo export animations/hero.json hero.mp4 --format mp4 --backend browser
+```
+
+This starts the preview server, prints its URL, and renders in the browser tab that opens. On effect-heavy documents it is orders of magnitude faster. The encoding, quality tiers and verification are unchanged. GPU and CPU rasterisation aren't bit-identical, so a browser export matches what you saw in the preview rather than a terminal export, and the tab has to stay open while it works.
+
+`--parallelism <n>` sets the worker threads for CPU rendering.
+
+## What an export contains
+
+- **The timeline as authored.** Interaction bindings never run during export. See [Interactivity](/authoring/interactivity) for what that means for how you author.
+- **A progress sheet.** `hero.mp4.preview.png` with the first twelve frames is written beside the output. It's a convenience, not a deliverable; `--progress-preview <file>` moves it and `--no-progress` skips it.
+- **A verified file.** The result is decoded after encoding to confirm it plays. `--no-verify` skips that.
+
+## Options reference
+
+Every flag is listed on the [`export`](/cli/export) reference page.

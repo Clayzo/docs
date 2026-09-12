@@ -1,0 +1,109 @@
+---
+title: "React and Next.js"
+description: "The ClayzoPlayer component and the useClayzoPlayer hook, from either player package."
+---
+
+Both players ship a React entry point with the same component:
+
+```tsx
+import { ClayzoPlayer } from "@clayzo/webgl-player/react";
+// or: import { ClayzoPlayer } from "@clayzo/canvaskit-player/react";
+import hero from "./animations/hero.json";
+
+export function Hero() {
+  return <ClayzoPlayer document={hero} options={{ loop: true }} className="hero-canvas" />;
+}
+```
+
+`ClayzoPlayer` renders a `<canvas>`, creates the player when it mounts, and disposes it when it unmounts. Any canvas attribute passes through.
+
+## Props
+
+| Prop | Description |
+| --- | --- |
+| `document` | The `AnimationDocument` to play. Required. |
+| `options` | Everything `createPlayer` accepts except `canvas` and `document`. |
+| `onReady` | Called with the `PlayerHandle` once the first frame can draw. Keep the handle to call `setInput`, `fire`, `seek` and so on. |
+| `onPlayerError` | Called if creation or a frame fails. |
+
+<Warning>
+  The player is recreated when `document` or `options` change identity. Build `options` once with `useMemo`, and keep callbacks behind refs or in `useCallback`, so a re-render doesn't tear down and rebuild the renderer.
+</Warning>
+
+## Driving inputs
+
+```tsx
+import { useEffect, useMemo, useRef } from "react";
+import { ClayzoPlayer } from "@clayzo/webgl-player/react";
+import type { AnimationDocument, PlayerHandle } from "@clayzo/webgl-player";
+
+export function Progress({ value, document }: { value: number; document: AnimationDocument }) {
+  const player = useRef<PlayerHandle | null>(null);
+  const options = useMemo(() => ({ interactive: true, loop: true }), []);
+
+  useEffect(() => {
+    player.current?.setInput("progress", value);
+  }, [value]);
+
+  return <ClayzoPlayer document={document} options={options} onReady={(handle) => { player.current = handle; }} />;
+}
+```
+
+## The hook
+
+`useClayzoPlayer` is the component's underlying hook, for when you own the canvas element yourself. It takes a canvas ref, the document and the options, and manages the same create-and-dispose lifecycle.
+
+## Loading a bundle
+
+```tsx
+"use client";
+
+import { useEffect, useMemo, useState } from "react";
+import { readClayzoBundle } from "@clayzo/animation/bundle";
+import { ClayzoPlayer } from "@clayzo/webgl-player/react";
+
+type Bundle = Awaited<ReturnType<typeof readClayzoBundle>>;
+
+export function Hero() {
+  const [bundle, setBundle] = useState<Bundle | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/animations/hero.clayzo")
+      .then((response) => response.arrayBuffer())
+      .then((buffer) => readClayzoBundle(new Uint8Array(buffer)))
+      .then((loaded) => { if (!cancelled) setBundle(loaded); });
+    return () => { cancelled = true; };
+  }, []);
+
+  const options = useMemo(
+    () => bundle && {
+      loop: true,
+      loaders: {
+        imageAssetLoader: bundle.imageAssetLoader,
+        fontAssetLoader: bundle.fontAssetLoader,
+        familyFontLoader: bundle.familyFontLoader,
+      },
+    },
+    [bundle],
+  );
+
+  if (!bundle || !options) return <div className="hero-placeholder" />;
+  return <ClayzoPlayer document={bundle.document} options={options} />;
+}
+```
+
+## Next.js
+
+The component must be a client component (`"use client"`). Nothing else is needed for either player: the WebGL player has nothing to serve, and the CanvasKit player loads Skia at runtime rather than through the bundler. Importing a `.json` document directly works with the default configuration.
+
+## Reduced motion
+
+Reduced motion is about autoplay, not about refusing to respond. A reasonable reading is to leave the timeline paused and let the pointer bindings keep running:
+
+```tsx
+const reduce = useMediaQuery("(prefers-reduced-motion: reduce)");
+const options = useMemo(() => ({ interactive: true, loop: !reduce }), [reduce]);
+
+<ClayzoPlayer document={hero} options={options} onReady={(p) => (reduce ? p.pause() : p.play())} />
+```

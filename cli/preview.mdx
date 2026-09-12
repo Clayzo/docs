@@ -1,0 +1,23 @@
+---
+title: "preview"
+description: "Serve a page that plays the document and can export it on this machine's GPU."
+---
+
+```text
+clayzo preview <document.json> [--port <n>]
+```
+
+Starts a local server and prints its URL. The page plays the document, scrubs, and has an export panel that renders on the GPU in the browser tab. See [Previewing and review](/authoring/previewing) for the controls.
+
+| Option | Description |
+| --- | --- |
+| `--port <n>` | Listen on a fixed port instead of a free one. |
+
+The server prints its process id on startup and holds its port until stopped with ctrl-c or `kill <pid>`. It stops itself after ten minutes with no browser attached.
+
+```text
+clayzo preview  http://127.0.0.1:53219/
+pid 85619 · ctrl-c, or: kill 85619
+```
+
+Requires a sign in. Accepts a `.json` document; assets and fonts resolve relative to it.

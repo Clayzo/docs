@@ -11,16 +11,56 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Documentation",
         "groups": [
           {
-            "group": "Customer Feedback SDK",
+            "group": "Get started",
+            "pages": ["index", "quickstart", "installation", "authentication"]
+          },
+          {
+            "group": "Authoring",
             "pages": [
-              "index",
-              "quick-start",
-              "customization",
-              "programmatic-api",
-              "dashboard"
+              "authoring/agents",
+              "authoring/documents",
+              "authoring/interactivity",
+              "authoring/fonts-and-assets",
+              "authoring/previewing"
+            ]
+          },
+          {
+            "group": "Exporting",
+            "pages": ["exporting/media", "exporting/bundles"]
+          },
+          {
+            "group": "Playback on the web",
+            "pages": [
+              "playback/choosing-a-renderer",
+              "playback/webgl-player",
+              "playback/canvaskit-player",
+              "playback/react"
+            ]
+          },
+          {
+            "group": "Help",
+            "pages": ["troubleshooting"]
+          }
+        ]
+      },
+      {
+        "tab": "CLI reference",
+        "groups": [
+          {
+            "group": "CLI reference",
+            "pages": [
+              "cli/overview",
+              "cli/init",
+              "cli/preview",
+              "cli/render-frame",
+              "cli/review",
+              "cli/package",
+              "cli/export",
+              "cli/doctor",
+              "cli/auth"
             ]
           }
         ]
@@ -30,8 +70,18 @@
       "anchors": [
         {
           "anchor": "App",
-          "href": "https://client.clayzo.com",
+          "href": "https://app.clayzo.com",
           "icon": "arrow-up-right-from-square"
+        },
+        {
+          "anchor": "npm",
+          "href": "https://www.npmjs.com/package/clayzo",
+          "icon": "npm"
+        },
+        {
+          "anchor": "Agent skills",
+          "href": "https://github.com/Clayzo/agent-skills",
+          "icon": "github"
         }
       ]
     }
@@ -49,9 +99,12 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
-      "href": "https://client.clayzo.com"
+      "label": "Sign in",
+      "href": "https://app.clayzo.com"
     }
+  },
+  "contextual": {
+    "options": ["copy", "claude", "chatgpt", "cursor"]
   },
   "footer": {
     "socials": {

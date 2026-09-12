@@ -1,0 +1,58 @@
+---
+title: "Bundles (.clayzo)"
+description: "Package a document with its fonts and images so it plays anywhere."
+---
+
+A `.clayzo` file is a document plus every font and image it references, in one archive. A bundle needs no asset URLs and no font loaders: hand it to a player and it plays.
+
+## Packaging
+
+```bash
+npx clayzo package animations/hero.json animations/hero.clayzo
+```
+
+Packaging resolves each asset's `uri` relative to the document, embeds the bytes, and records a manifest. It refuses to build a bundle whose text would render as nothing, so a missing font fails here rather than on someone's screen. `--allow-incomplete` overrides that for deliberate partial packaging.
+
+From a script, the same operation is one call:
+
+```ts
+import { packageClayzoBundle } from "@clayzo/animation/authoring";
+
+const packaged = await packageClayzoBundle(document, {
+  assetBytes: { manrope: fontBytes, photo: imageBytes },
+});
+writeFileSync("hero.clayzo", packaged.bytes);
+```
+
+`assetBytes` is keyed by asset id. `fontFamilies` supplies files for family-name runs that no embedded asset covers.
+
+## Playing a bundle
+
+`readClayzoBundle` opens the archive into a document and the loaders that serve its assets. Those loaders drop straight into `createPlayer` from either player package:
+
+```ts
+import { readClayzoBundle } from "@clayzo/animation/bundle";
+import { createPlayer } from "@clayzo/webgl-player";
+
+const bytes = new Uint8Array(await (await fetch("/animations/hero.clayzo")).arrayBuffer());
+const { document, imageAssetLoader, fontAssetLoader, familyFontLoader } =
+  await readClayzoBundle(bytes);
+
+const player = await createPlayer({
+  canvas,
+  document,
+  loaders: { imageAssetLoader, fontAssetLoader, familyFontLoader },
+  loop: true,
+});
+player.play();
+```
+
+`@clayzo/animation/bundle` is the read-only entry point for hosts that never author. It carries `readClayzoBundle` and `isClayzoBundle`, which checks whether some bytes look like an archive.
+
+## When to use a bundle
+
+- **Interactive pieces.** Interactivity has no video representation, so an interactive animation is always a document plus a player, and a bundle is the portable form of that.
+- **Anything with fonts.** A bundle ends the font problem, for the WebGL and the CanvasKit player alike.
+- **Handing an animation to another team.** One file, the exact reviewed revision, plays the same everywhere.
+
+Serve bundles as static files with a long cache lifetime. They are ordinary ZIP archives, so they compress well and any CDN handles them.

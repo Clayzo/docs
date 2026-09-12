@@ -1,0 +1,42 @@
+---
+title: "Troubleshooting"
+description: "The problems people hit, and what they mean."
+---
+
+<AccordionGroup>
+  <Accordion title="Text is missing but everything else renders">
+    No font was found for that text run. Nothing substitutes and nothing warns in the frame. Embed the font as a `font` asset with a `uri` next to the document, and reference it with `fontAssetId`. In the browser, supply a `familyFontLoader` for family-name runs, or package the document as `.clayzo`. The CanvasKit player's `onPrewarm` reports `unresolvedFamilies`. See [Fonts and assets](/authoring/fonts-and-assets).
+  </Accordion>
+  <Accordion title="The export has a black (or transparent) background">
+    Frames are transparent wherever nothing is drawn, and `canvas.backgroundColor` is metadata. Draw a full-canvas `rect` as the first root node.
+  </Accordion>
+  <Accordion title="Export is slow">
+    Cost is per layer, not per second: opacity below 1, isolated groups, shadows and every effect add an offscreen pass per frame, and glass, refraction and custom shaders are evaluated per pixel. If the first estimate exceeds a minute, add `--backend browser` or export from `clayzo preview` to render on the GPU. In the document, animate `style.fill.opacity` instead of node `opacity` on solid shapes.
+  </Accordion>
+  <Accordion title="Something doesn't draw in the WebGL player but does in the preview">
+    The document uses a construct the WebGL player doesn't cover: a matte, a nested clip, audio, or a shader calling a colour-space intrinsic. Run `checkCoverage` and read `reasons`. Change the document, or ship the CanvasKit player for it. See [Choosing a renderer](/playback/choosing-a-renderer).
+  </Accordion>
+  <Accordion title="An interactive piece looks wrong in the video">
+    Exports don't run bindings; every bound property exports at its keyframed value. Author the resting pose into the timeline and let bindings `add` to it. See [Interactivity](/authoring/interactivity).
+  </Accordion>
+  <Accordion title="CLAYZO_AUTH_REQUIRED">
+    The command needs a sign in. Run `npx clayzo login`, or set `CLAYZO_TOKEN` in CI. See [Authentication](/authentication).
+  </Accordion>
+  <Accordion title="CLAYZO_VERSION_UNSUPPORTED">
+    The installed CLI is older than the minimum the service supports. Run the command in the error, or `npx clayzo update`, and upgrade every Clayzo package together.
+  </Accordion>
+  <Accordion title="CLAYZO_LOGIN_EXPIRED">
+    The device code wasn't approved in time. Run `npx clayzo login` again and approve it in the browser.
+  </Accordion>
+  <Accordion title="The preview port is still in use">
+    A previous preview is still running. It prints its process id on startup; stop it with `kill <pid>`. Previews also stop themselves after ten minutes with no browser attached.
+  </Accordion>
+  <Accordion title="The React player rebuilds on every render">
+    `options` or a callback changes identity each render, which recreates the player. Build `options` with `useMemo` and keep callbacks stable. See [React and Next.js](/playback/react).
+  </Accordion>
+  <Accordion title="A keyframe never seems to land on a frame">
+    Ticks are the time base, and frames are a multiple of them. At 240 ticks per second and 30 fps a frame is 8 ticks; at 60 fps it's 4. Snap keyframes to that grid.
+  </Accordion>
+</AccordionGroup>
+
+Still stuck? Email [team@clayzo.com](mailto:team@clayzo.com).

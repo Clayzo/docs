@@ -1,0 +1,44 @@
+---
+title: "login, logout and token"
+description: "Authorize a device, sign out, and manage CI tokens."
+---
+
+## login
+
+```text
+clayzo login
+```
+
+Prints a URL and a code, opens the URL in your browser, and waits for you to approve the device. Credentials are stored locally and refreshed automatically. See [Authentication](/authentication).
+
+## logout
+
+```text
+clayzo logout
+```
+
+Revokes the device and removes the stored credentials.
+
+## token
+
+```text
+clayzo token create [name]
+clayzo token list
+clayzo token revoke <id>
+```
+
+CI tokens let servers run protected commands without a browser. Set one as `CLAYZO_TOKEN`.
+
+| Subcommand | Description |
+| --- | --- |
+| `create [name]` | Create a token. The plaintext is printed once and never stored; only its hash is kept. Default name `CI token`. |
+| `list` | Names, prefixes, creation dates and status of your tokens. |
+| `revoke <id>` | Revoke a token by id. |
+
+Add `--json` to any of them for pretty-printed JSON.
+
+```bash
+npx clayzo token create "production exports" --json
+```
+
+Token management requires a sign in on the machine that runs it.

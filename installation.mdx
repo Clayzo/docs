@@ -1,0 +1,94 @@
+---
+title: "Installation"
+description: "Requirements, what the initializer installs, and how to install by hand."
+---
+
+## Requirements
+
+- Node.js 22.13 or newer.
+- npm, pnpm, Yarn or Bun.
+- A browser on the machine, for signing in and for `clayzo preview`.
+- For playback on your site: a browser with WebGL2, which is every current browser.
+
+Nothing else. The CLI carries everything it needs to render frames and video locally, so you don't install a renderer separately and your website never ships it unless you choose the CanvasKit player.
+
+## The initializer
+
+```bash
+npx clayzo@latest init
+```
+
+Run it in the project root. It installs three things:
+
+| Installed | As | Purpose |
+| --- | --- | --- |
+| `@clayzo/animation` | dependency | Types, builders, validation and packaging used by authoring scripts |
+| `@clayzo/webgl-player` | dependency | Plays documents on your site |
+| `clayzo` | dev dependency | The CLI |
+
+Then it runs `npx skills add clayzo/agent-skills` to install the two Clayzo skills for your agent.
+
+Interactively it asks two questions: whether to also install `@clayzo/canvaskit-player` for full-fidelity playback, and whether to install the skills. Without a terminal, or with `--yes`, it takes the defaults.
+
+| Flag | Effect |
+| --- | --- |
+| `--renderer webgl` | Install only the WebGL player (default) |
+| `--renderer canvaskit` | Install only the CanvasKit player |
+| `--renderer both` | Install both players |
+| `--renderer none` | Install no player, for projects that only export |
+| `--no-skills` | Skip the agent skills |
+| `--yes` | Accept every default without prompting |
+
+The initializer prints the commands it runs, then a JSON summary on stdout.
+
+## Installing by hand
+
+<CodeGroup>
+
+```bash npm
+npm install @clayzo/animation @clayzo/webgl-player
+npm install --save-dev clayzo
+npx skills add clayzo/agent-skills
+```
+
+```bash pnpm
+pnpm add @clayzo/animation @clayzo/webgl-player
+pnpm add --save-dev clayzo
+npx skills add clayzo/agent-skills
+```
+
+```bash yarn
+yarn add @clayzo/animation @clayzo/webgl-player
+yarn add --dev clayzo
+npx skills add clayzo/agent-skills
+```
+
+```bash bun
+bun add @clayzo/animation @clayzo/webgl-player
+bun add --dev clayzo
+npx skills add clayzo/agent-skills
+```
+
+</CodeGroup>
+
+Swap `@clayzo/webgl-player` for `@clayzo/canvaskit-player` if you want the full-fidelity player. See [Choosing a renderer](/playback/choosing-a-renderer).
+
+## Versions
+
+All Clayzo packages are released together and share one version number. Install matching versions and upgrade them together. The CLI checks this for you:
+
+```bash
+npx clayzo doctor --updates
+```
+
+It reports mismatched or outdated packages and skills, and `npx clayzo update` prints the exact command to upgrade. When a CLI version falls below the minimum the service supports, protected commands stop with a `CLAYZO_VERSION_UNSUPPORTED` error and the upgrade command to run.
+
+## Running the CLI
+
+After installation the CLI is on your project's path:
+
+```bash
+npx clayzo --help
+```
+
+Every example in these docs uses `npx clayzo`. With pnpm, `pnpm clayzo` works too, and `npx clayzo@latest` runs the newest release without installing it.

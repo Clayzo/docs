@@ -1,0 +1,71 @@
+---
+title: "Authentication"
+description: "Which commands need a sign in, how to sign in, and how to run in CI."
+---
+
+## What needs an account
+
+| Works without signing in | Needs a sign in |
+| --- | --- |
+| `init`, `doctor`, `update`, `--help` | `preview` |
+| Authoring scripts, types and validation | `render-frame` |
+| Playing documents in the browser with either player | `review` |
+| | `package` |
+| | `export` |
+
+Playback never authenticates. A site that embeds a Clayzo player makes no request to Clayzo.
+
+## Signing in on your machine
+
+```bash
+npx clayzo login
+```
+
+The CLI prints a URL and a short code, and opens the URL in your browser. Sign in to Clayzo, confirm the code matches, and approve the device. The terminal picks it up and prints `{"authenticated": true}`. The code expires if it isn't approved within a few minutes; run the command again.
+
+Credentials are stored on the machine and refreshed automatically:
+
+| Platform | Location |
+| --- | --- |
+| macOS and Linux | `~/.config/clayzo` (or `$XDG_CONFIG_HOME/clayzo`) |
+| Windows | `%APPDATA%\Clayzo` |
+
+Set `CLAYZO_CONFIG_DIR` to store them somewhere else.
+
+To sign out and revoke the device:
+
+```bash
+npx clayzo logout
+```
+
+## CI and servers
+
+Create a token once, from a signed-in machine:
+
+```bash
+npx clayzo token create "production exports" --json
+```
+
+The token is printed once and never again. Clayzo keeps only a hash. Store it as a secret and expose it as `CLAYZO_TOKEN`; every protected command uses it when set.
+
+```yaml
+# GitHub Actions
+- run: npx clayzo export animations/hero.json hero.mp4 --format mp4 --tier final
+  env:
+    CLAYZO_TOKEN: ${{ secrets.CLAYZO_TOKEN }}
+```
+
+Manage tokens from any signed-in machine:
+
+```bash
+npx clayzo token list --json
+npx clayzo token revoke <token-id>
+```
+
+## Checking the setup
+
+```bash
+npx clayzo doctor
+```
+
+Reports whether the machine is authenticated, whether the installed packages and skills match, and whether an update is required. Add `--json` for machine-readable output.

@@ -1,0 +1,46 @@
+---
+title: "Choosing a renderer"
+description: "Two players, same call. Pick one at integration time and ship only that one."
+---
+
+Clayzo ships two browser players for the same documents. They take the same `createPlayer` call, so switching is one word in an import, but nothing switches between them at runtime: you pick one and ship its bytes.
+
+| | `@clayzo/webgl-player` | `@clayzo/canvaskit-player` |
+| --- | --- | --- |
+| Transfer size | about 250 KB compressed, nothing else to serve | about 2.5 MB compressed, most of it Skia, fetched from a pinned CDN or self-hosted |
+| Coverage | Nearly everything, and measurable per document | Everything the engine can express |
+| Fidelity | Very close to the reference; differences are at antialiased edges | The reference: the same renderer the export uses |
+| Setup | `npm install`, done | Serve two extra files, or use the default CDN |
+
+## The rule
+
+**Start with WebGL for websites.** Run `checkCoverage` over every document you ship, ideally in CI. Move to CanvasKit only when coverage reports a document needs it, or when exact export parity is an explicit requirement.
+
+**Use CanvasKit when you can't enumerate the documents in advance.** A design tool, an editor preview, a gallery of user-authored work: anything where a document you have never seen must render right the first time.
+
+**If you can't decide, ship CanvasKit.** A heavier page is a problem you can measure and fix later. A construct that silently doesn't draw is a bug your users report and you can't reproduce.
+
+Don't make a page able to load both. A page that might need CanvasKit has to be able to fetch it, so the saving is never real for the worst case, and every document would pay an inspection pass before its first frame.
+
+## Checking coverage
+
+```ts
+import { checkCoverage } from "@clayzo/webgl-player";
+
+const coverage = await checkCoverage(document);
+if (!coverage.supported) {
+  throw new Error(`needs the CanvasKit player: ${coverage.reasons.join("; ")}`);
+}
+```
+
+`reasons` names the constructs in plain words, such as an unsupported effect, audio nodes, or a custom shader that doesn't compile with the driver's own message. The usual fix is to change the document rather than the host. The check needs a real WebGL2 context, so run it in a browser or a headless one, not in plain Node.
+
+Register fonts before checking. Text with no font registered is reported as unsupported, which would send every text document to CanvasKit for no reason.
+
+## What needs CanvasKit today
+
+- Mattes and nested clips.
+- Audio nodes.
+- Custom shaders that call the colour-space intrinsics `toLinearSrgb` or `fromLinearSrgb`.
+
+Every other effect, including glass, refraction, dithering, duotone, mesh gradients and custom shaders, runs in the WebGL player. Per-pixel effects such as dithering produce a slightly different dot pattern when rendered below the document's resolution; use `resolution: "document"` when that matters.

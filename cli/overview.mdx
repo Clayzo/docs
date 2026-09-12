@@ -1,0 +1,44 @@
+---
+title: "CLI overview"
+description: "Every clayzo command, and the conventions they share."
+---
+
+```text
+clayzo <command> [input] [output] [options]
+```
+
+| Command | What it does | Sign in |
+| --- | --- | --- |
+| [`init`](/cli/init) | Install the Clayzo packages and agent skills in a project | No |
+| [`preview`](/cli/preview) | Serve a browser page that plays a document and exports on the GPU | Yes |
+| [`render-frame`](/cli/render-frame) | Render one frame, a labelled sheet of frames, or the loop seam | Yes |
+| [`review`](/cli/review) | Write a revision-bound review packet | Yes |
+| [`package`](/cli/package) | Build a portable `.clayzo` bundle | Yes |
+| [`export`](/cli/export) | Export MP4, MOV, GIF, WebM or a PNG sequence | Yes |
+| [`doctor`](/cli/doctor) | Check authentication, compatibility and updates | No |
+| [`update`](/cli/doctor) | Check for updates and print the exact upgrade command | No |
+| [`login`](/cli/auth) | Authorize this device through the browser | — |
+| [`logout`](/cli/auth) | Revoke and remove locally stored credentials | — |
+| [`token create`](/cli/auth) | Create a revocable CI token, printed once | Yes |
+| [`token list`](/cli/auth) | List CI token names, prefixes and status | Yes |
+| [`token revoke`](/cli/auth) | Revoke a CI token by id | Yes |
+
+## Conventions
+
+- **Help.** `clayzo <command> --help` prints that command's usage without reading, fetching or authenticating anything. `clayzo --version` prints the version.
+- **Input first, output second.** The document path comes first; the output path, where there is one, second; options after.
+- **Ticks.** Every time option is in ticks, the document's own time base. At the conventional 240 ticks per second and 30 fps, one frame is 8 ticks.
+- **Structured output.** Commands print a JSON result on stdout. Progress and notices go to stderr, prefixed `[clayzo]`, so stdout stays parseable. Errors are JSON objects with a `code` such as `CLAYZO_AUTH_REQUIRED`.
+- **Exit codes.** `0` on success, `1` on an error, `2` when the CLI version is below the minimum the service supports or an update is required.
+- **Sizes.** `--max-dimension <px>` bounds the longer side of a render; `--full-resolution` renders at the document's size. The two conflict.
+
+## Environment variables
+
+| Variable | Effect |
+| --- | --- |
+| `CLAYZO_TOKEN` | A CI token; used instead of stored credentials when set |
+| `CLAYZO_CONFIG_DIR` | Where credentials are stored |
+
+## Updates
+
+Protected commands check for updates when they run and print a notice on stderr when packages or skills are behind. `clayzo update` prints the exact command to upgrade everything together.

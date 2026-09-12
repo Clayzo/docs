@@ -1,0 +1,29 @@
+---
+title: "init"
+description: "Install the Clayzo packages and agent skills in the current project."
+---
+
+```text
+clayzo init [--renderer webgl|canvaskit|both|none] [--no-skills] [--yes]
+```
+
+Run as `npx clayzo@latest init` in a project that doesn't have Clayzo yet. It detects npm, pnpm, Yarn or Bun from the lockfile, installs `@clayzo/animation` and the chosen player as dependencies, installs `clayzo` as a dev dependency, all at one matching version, and runs `npx skills add clayzo/agent-skills` to install the two agent skills.
+
+## Options
+
+| Option | Description |
+| --- | --- |
+| `--renderer webgl` | Install `@clayzo/webgl-player`. The default. |
+| `--renderer canvaskit` | Install `@clayzo/canvaskit-player` instead. |
+| `--renderer both` | Install both players. |
+| `--renderer none` | Install no player. |
+| `--no-skills` | Don't install the agent skills. |
+| `--yes` | Accept the defaults without prompting. Implied when there is no terminal. |
+
+## Prompts
+
+With a terminal and no `--renderer`, `init` asks whether to also install the CanvasKit player (default no). With skills enabled it asks whether to install them (default yes). The skills installer may then ask which agents and whether to install per project or globally; with `--yes` it installs both skills non-interactively.
+
+## Output
+
+The commands it runs are printed to stderr as they run. A JSON summary with the project root, package manager, renderer choice and whether skills were installed is printed to stdout.

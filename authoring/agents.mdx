@@ -1,0 +1,79 @@
+---
+title: "Working with agents"
+description: "Install the Clayzo skills and brief your agent so it produces motion you'd ship."
+---
+
+Clayzo is designed to be driven by a coding agent. The agent writes the animation as a typed TypeScript script, runs it, renders frames to check its own work, and iterates. Your job is the brief and the review.
+
+## The skills
+
+Two skills ship with Clayzo. They load into your agent's context when the task calls for them.
+
+| Skill | When your agent uses it |
+| --- | --- |
+| `clayzo-animation-authoring` | Creating or editing an animation: motion design, product microinteractions, pointer behaviour, loops, 2.5D camera work, glass, dithering, custom shaders, previewing and self-review |
+| `clayzo-animation-shipping` | Getting a finished animation into a product: choosing a player, React and Next integration, fonts and assets, export preflight, loop verification |
+
+Each skill is a short router that points at detailed references, so the agent reads only what the brief needs: motion fundamentals for every task, glass and refraction only when you ask for glass.
+
+### Installing
+
+`npx clayzo@latest init` installs them. To install or update them on their own:
+
+```bash
+npx skills add clayzo/agent-skills
+```
+
+The installer detects the agents on your machine and asks whether to install for the project or globally. Useful flags:
+
+| Flag | Effect |
+| --- | --- |
+| `--agent <name>` | Target one agent, for example `claude-code` or `cursor` |
+| `--global` | Install for every project on the machine |
+| `--skill clayzo-animation-authoring` | Install one skill; repeat the flag for both |
+| `--yes` | Skip prompts |
+
+`npx clayzo doctor --updates` tells you when the installed skills are behind the CLI.
+
+## Writing a brief
+
+An agent with the skills knows how to build a rounded card, time a stagger, or make a loop seamless. What it can't know is what you want. Cover these in the brief:
+
+- **The subject and the verb.** "Three cards slide in and settle" beats "a nice hero animation".
+- **Canvas and duration.** Width and height in pixels, seconds, and whether it loops.
+- **Where it plays.** A landing page hero, an in-app state change, a social video, an email. This decides the player, the export format, and whether interactivity is even possible.
+- **Palette and type.** Hex colours, and font files if you have a brand face. Put them in a `fonts/` folder next to the document. Without a font the agent builds wordmarks from shapes, which is often better anyway.
+- **A reference**, if you have one. A video, a screenshot, a competitor's page. The authoring skill has a reference for matching one.
+
+A brief that works:
+
+```text
+Using Clayzo, build the "payment confirmed" microinteraction for our checkout.
+480x480, 1.2 seconds, plays once. A circle draws its outline, fills teal
+(#01adae), and a check mark pops in with a small overshoot. Respect reduced
+motion: the reduced variant should crossfade instead of popping. Output
+animations/payment-confirmed.json and render a 6-frame sheet.
+```
+
+## What the agent will do
+
+1. Write `author.ts` (or similar) importing from `@clayzo/animation/authoring`, and run it with `npx tsx` to write the JSON document.
+2. Validate the document. Validation names the node and the field when something is wrong.
+3. Render a labelled frame sheet with `clayzo render-frame --samples 6` and look at it. Expect several rounds of this.
+4. Start `clayzo preview` for anything interactive, since bindings only show up when a pointer moves.
+5. Run `clayzo review` before handing over, and report the revision it reviewed.
+6. Export or package on request.
+
+## Reviewing the result
+
+Look at the frame sheet the agent shows you, not only its description. The things worth checking in a sheet are the ones validation can't catch: a layer behind another, a beat that lands too early, an element that never moves. If the agent didn't show you a sheet, ask for one:
+
+```bash
+npx clayzo render-frame animations/hero.json sheet.png --samples 8 --max-dimension 320
+```
+
+For interactive pieces, open the preview and move the cursor through rest, approach, hover, press and leave.
+
+<Tip>
+  Ask for the revision. Every document carries a revision hash, and `clayzo review` binds its findings to one. "Reviewed revision 3f9c…" is a statement you can verify; "looks good" isn't.
+</Tip>

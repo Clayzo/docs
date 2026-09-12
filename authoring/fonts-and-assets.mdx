@@ -1,0 +1,101 @@
+---
+title: "Fonts and assets"
+description: "How text finds its font, how images are referenced, and how to make a document portable."
+---
+
+## Fonts
+
+Text draws nothing without a font. There is no substitution and no error: the text run is simply absent while everything else renders. This is the single most common way a Clayzo document goes wrong, so it's worth understanding.
+
+A text run finds its typeface one of two ways:
+
+| The run has | Resolved by | Works everywhere |
+| --- | --- | --- |
+| `fontAssetId` pointing at a `font` asset in the document | The asset's file | **Yes** |
+| Only a `fontFamily` name such as `"Inter"` | Whatever the environment can supply | Only where that family is available |
+
+**Embed fonts as assets.** Put the file next to the document and declare it:
+
+```json
+"assets": {
+  "manrope": {
+    "id": "manrope",
+    "type": "font",
+    "uri": "fonts/Manrope-ExtraBold.ttf",
+    "mimeType": "font/ttf"
+  }
+}
+```
+
+Then reference it from the text run with `fontAssetId: "manrope"`. The `uri` resolves relative to the document on disk, so preview, export and packaging all find it.
+
+Things to know:
+
+- Use a permissively licensed face (an OFL family such as Manrope or Inter) that you can ship. A system font renders on your machine but can't be embedded, and fails everywhere else.
+- `fontWeight` doesn't select a weight from a family. Ship the static file for the weight you want, and keep `fontWeight` at 400 to 500 on that run, since 600 and above applies synthetic bold.
+- A glyph the face lacks draws as a hollow box. Stay within the face's character set.
+- Wrapping and alignment use deterministic glyph measurement rather than a full shaper. Complex scripts and ligatures aren't shaped. The `text.shaping_fallback` diagnostic is normal and means exactly this.
+
+Family names still work locally, where the CLI can read installed fonts, and in the browser when you supply a loader (see below). A brand face you can't ship is the usual reason to use one.
+
+## Images
+
+```json
+"assets": {
+  "photo": {
+    "id": "photo",
+    "type": "image",
+    "uri": "images/photo.png",
+    "width": 1600,
+    "height": 1200,
+    "mimeType": "image/png"
+  }
+}
+```
+
+An `image` node references the asset by id and fits it into a box. PNG, JPEG and WebP are supported. Declare the real pixel dimensions; the node's `size` decides how it's fitted.
+
+## In the browser
+
+By default a player fetches each asset's `uri` as a URL relative to the page. When that isn't right, pass loaders:
+
+```ts
+const player = await createPlayer({
+  canvas,
+  document,
+  loaders: {
+    imageAssetLoader: async (asset) => bytesFrom(`/cdn/${asset.id}`),
+    fontAssetLoader: async (asset) => bytesFrom(`/fonts/${asset.uri}`),
+    familyFontLoader: async (family, weight) =>
+      family === "Inter" ? bytesFrom("/fonts/Inter.ttf") : null,
+  },
+});
+```
+
+Each loader returns the file's bytes as a `Uint8Array`, or `null` when it has nothing. `familyFontLoader` is how a family-name run gets a typeface in the browser; return your best match rather than `null`, because `null` means no text.
+
+The CanvasKit player reports what it couldn't resolve:
+
+```ts
+await createPlayer({
+  canvas,
+  document,
+  onPrewarm: (result) => {
+    if (result.unresolvedFamilies.length > 0) {
+      console.warn("no font for:", result.unresolvedFamilies.join(", "));
+    }
+  },
+});
+```
+
+Wire this up in development. It is the only signal you get.
+
+## Make it portable
+
+A `.clayzo` bundle embeds the document with every font and image it uses, so no loader configuration is needed anywhere:
+
+```bash
+npx clayzo package animations/hero.json animations/hero.clayzo
+```
+
+Packaging refuses to build a bundle whose text would render as nothing, which makes it the cheapest place to catch a missing font. See [Bundles](/exporting/bundles).

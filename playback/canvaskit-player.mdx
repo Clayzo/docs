@@ -1,0 +1,87 @@
+---
+title: "CanvasKit player"
+description: "The full-fidelity player. The same renderer the export uses, so playback can't drift from the video."
+---
+
+```bash
+npm install @clayzo/canvaskit-player
+```
+
+```ts
+import { createPlayer } from "@clayzo/canvaskit-player";
+
+const player = await createPlayer({ canvas, document });
+player.play();
+```
+
+Same call as the WebGL player, so the choice between them is one import.
+
+## Where Skia comes from
+
+This player runs Skia compiled to WebAssembly. That binary is about 8 MB uncompressed and 2.5 MB compressed, so it is not bundled into your JavaScript. By default it's fetched from a version-pinned CDN:
+
+```text
+https://unpkg.com/canvaskit-wasm@0.42.0/bin/full
+```
+
+It's pinned deliberately: the player is written against that build, and a CDN quietly serving a newer Skia would be a fidelity change nobody asked for.
+
+To self-host, behind a firewall, under a strict CSP, or to keep third parties out of your critical path:
+
+```bash
+npm install -D canvaskit-wasm@0.42.0
+cp node_modules/canvaskit-wasm/bin/full/canvaskit.{js,wasm} public/canvaskit/
+```
+
+```ts
+await createPlayer({ canvas, document, canvasKitUrl: "/canvaskit" });
+```
+
+Both files are required, and the `full` build specifically. Serve the `.wasm` with `Content-Type: application/wasm` and a long cache lifetime.
+
+## Options
+
+| Option | Type | Description |
+| --- | --- | --- |
+| `canvas` | `HTMLCanvasElement` | The canvas to draw into. Required. |
+| `document` | `AnimationDocument` | The document to play. Required. |
+| `canvasKitUrl` | `string` | Directory serving `canvaskit.js` and `canvaskit.wasm`. Defaults to the pinned CDN. |
+| `loaders` | `PlayerAssetLoaders` | Image and font loaders. See [Fonts and assets](/authoring/fonts-and-assets). |
+| `width`, `height` | `number` | Render surface size. Surface size is the throughput dial on effect-heavy documents. |
+| `autoplay` | `boolean` | Start playing once the first frame is ready. |
+| `loop` | `boolean` | Loop playback. Default on. |
+| `speed` | `number` | Playback rate multiplier. |
+| `interactive` | `boolean` | Run the document's pointer bindings. |
+| `interactionElement` | `HTMLElement` | Listen for pointer events on this element instead of the canvas. |
+| `onFrame` | `(stats) => void` | Per-frame `drawMs`, `averageDrawMs`, `framesPerSecond` and `droppedFrames`. |
+| `onDiagnostics` | `(diagnostics) => void` | Renderer warnings, such as a font that couldn't be resolved. |
+| `onPrewarm` | `(result) => void` | What was loaded before the first frame, including `unresolvedFamilies`. |
+| `onError` | `(error) => void` | Called when a frame fails. |
+
+The promise resolves once assets are warm and the first frame is on screen, so you can hold a loading state until playback is genuinely ready.
+
+The handle is the same as the WebGL player's: `tick`, `playing`, `play()`, `pause()`, `seek(tick)`, `setInput(name, value)`, `fire(name)` and `dispose()`.
+
+## Fonts
+
+A font no loader could supply doesn't throw and doesn't substitute; the text draws nothing. `onPrewarm` is how you find out in development instead of in production:
+
+```ts
+await createPlayer({
+  canvas,
+  document,
+  onPrewarm: (result) => {
+    if (result.unresolvedFamilies.length > 0) {
+      console.warn("no font for:", result.unresolvedFamilies.join(", "));
+    }
+  },
+});
+```
+
+Documents packaged as `.clayzo` carry their fonts; see [Bundles](/exporting/bundles).
+
+## Performance
+
+Rendering is GPU-backed and cost scales with pixel count. A glass-heavy 1920×1080 document draws in a few milliseconds on a laptop GPU. If a page has to run on hardware without WebGL, reduce `width` and `height` or show a poster frame; effect-heavy documents won't hit frame rate on a CPU fallback at any sensible size.
+
+Ticks snap to the document's frame grid, so playback draws exactly the frames the export would. A frame that is still in flight is skipped rather than queued, so playback never drifts into slow motion.

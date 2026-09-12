@@ -1,0 +1,18 @@
+---
+title: "package"
+description: "Build a portable .clayzo bundle with the document's assets and fonts embedded."
+---
+
+```text
+clayzo package <document.json> [output.clayzo] [--allow-incomplete]
+```
+
+Resolves every image and font asset relative to the document, embeds the bytes, and writes one archive a player can play without any loader configuration. See [Bundles](/exporting/bundles).
+
+| Option | Description |
+| --- | --- |
+| `--allow-incomplete` | Package even when an asset the document needs can't be found. The bundle will render incompletely; text with no typeface draws nothing. |
+
+Without the flag, a missing font or image fails the command with the asset named. That is the intended place to catch it.
+
+Requires a sign in.

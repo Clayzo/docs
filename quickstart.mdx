@@ -1,0 +1,86 @@
+---
+title: "Quickstart"
+description: "From an empty project to an exported animation."
+---
+
+You need Node.js 22.13 or newer, a package manager, and a coding agent such as Claude Code, Cursor or Codex. The steps take about ten minutes.
+
+<Steps>
+  <Step title="Set up the project">
+    Run the initializer in the project where the animation will live:
+
+    ```bash
+    npx clayzo@latest init
+    ```
+
+    It detects your package manager, installs `@clayzo/animation` and `@clayzo/webgl-player` as dependencies, installs the `clayzo` CLI as a dev dependency, and installs the two Clayzo agent skills. Answer the prompts, or pass `--yes` to accept the defaults.
+  </Step>
+  <Step title="Sign in">
+    ```bash
+    npx clayzo login
+    ```
+
+    A browser window opens. Approve the device and come back to the terminal. See [Authentication](/authentication) for CI tokens.
+  </Step>
+  <Step title="Ask your agent for an animation">
+    Give it a brief with the essentials: what moves, the canvas, the duration, whether it loops, and where it will play. For example:
+
+    ```text
+    Create a looping hero animation for our landing page using Clayzo.
+    1920x1080, 6 seconds, seamless loop. Three rounded cards drift in
+    from the right, settle with a soft overshoot, and a teal glow pulses
+    behind them. Palette: #101218 background, #01adae accent. Write the
+    document to animations/hero.json and show me a frame sheet.
+    ```
+
+    The agent writes an authoring script, runs it, validates the document, and renders a sheet of frames so you can both see the result.
+  </Step>
+  <Step title="Look at it yourself">
+    A labelled sheet of six frames:
+
+    ```bash
+    npx clayzo render-frame animations/hero.json sheet.png --samples 6 --max-dimension 320
+    ```
+
+    Or play it in a browser tab, with scrubbing and an export panel:
+
+    ```bash
+    npx clayzo preview animations/hero.json
+    ```
+  </Step>
+  <Step title="Ship it">
+    As a video:
+
+    ```bash
+    npx clayzo export animations/hero.json hero.mp4 --format mp4 --tier final
+    ```
+
+    Or on your site, with the player:
+
+    ```tsx
+    import { ClayzoPlayer } from "@clayzo/webgl-player/react";
+    import hero from "./animations/hero.json";
+
+    export function Hero() {
+      return <ClayzoPlayer document={hero} options={{ loop: true }} />;
+    }
+    ```
+  </Step>
+</Steps>
+
+## Where to go next
+
+<CardGroup cols={2}>
+  <Card title="Working with agents" icon="robot" href="/authoring/agents">
+    What the skills do and how to write a brief that gets good motion.
+  </Card>
+  <Card title="Writing documents" icon="code" href="/authoring/documents">
+    The document format, if you or your agent want to author by hand.
+  </Card>
+  <Card title="Fonts and assets" icon="font" href="/authoring/fonts-and-assets">
+    Text draws nothing without a font. Read this before your first headline.
+  </Card>
+  <Card title="Choosing a player" icon="scale-balanced" href="/playback/choosing-a-renderer">
+    WebGL or CanvasKit, and how to check a document is covered.
+  </Card>
+</CardGroup>
