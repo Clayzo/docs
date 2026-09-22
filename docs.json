@@ -15,7 +15,12 @@
         "groups": [
           {
             "group": "Get started",
-            "pages": ["index", "quickstart", "installation", "authentication"]
+            "pages": [
+              "index",
+              "quickstart",
+              "installation",
+              "authentication"
+            ]
           },
           {
             "group": "Authoring",
@@ -29,7 +34,10 @@
           },
           {
             "group": "Exporting",
-            "pages": ["exporting/media", "exporting/bundles"]
+            "pages": [
+              "exporting/media",
+              "exporting/bundles"
+            ]
           },
           {
             "group": "Playback on the web",
@@ -41,8 +49,16 @@
             ]
           },
           {
+            "group": "Playback on iOS and macOS",
+            "pages": [
+              "playback/ios"
+            ]
+          },
+          {
             "group": "Help",
-            "pages": ["troubleshooting"]
+            "pages": [
+              "troubleshooting"
+            ]
           }
         ]
       },
@@ -104,7 +120,12 @@
     }
   },
   "contextual": {
-    "options": ["copy", "claude", "chatgpt", "cursor"]
+    "options": [
+      "copy",
+      "claude",
+      "chatgpt",
+      "cursor"
+    ]
   },
   "footer": {
     "socials": {

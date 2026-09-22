@@ -73,9 +73,13 @@ npx skills add clayzo/agent-skills
 
 Swap `@clayzo/webgl-player` for `@clayzo/canvaskit-player` if you want the full-fidelity player. See [Choosing a renderer](/playback/choosing-a-renderer).
 
+## iOS and macOS
+
+Native playback in Swift apps is a Swift package, not an npm package. Add `https://github.com/Clayzo/clayzo-swift` in Xcode and play the same documents and bundles the CLI produces. See [iOS and macOS](/playback/ios).
+
 ## Versions
 
-All Clayzo packages are released together and share one version number. Install matching versions and upgrade them together. The CLI checks this for you:
+All Clayzo packages are released together and share one version number, the Swift package included. Install matching versions and upgrade them together. The CLI checks this for you:
 
 ```bash
 npx clayzo doctor --updates

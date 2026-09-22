@@ -1,0 +1,139 @@
+---
+title: "iOS and macOS"
+description: "Play documents natively in Swift apps. One Swift package, about 660 KB, no web view."
+---
+
+Clayzo plays documents natively on iOS and macOS through a Swift package. It draws with Metal, runs the same engine as the browser players, and takes the same documents and `.clayzo` bundles. There is no web view and nothing to fetch at runtime.
+
+| | |
+| --- | --- |
+| Package | `https://github.com/Clayzo/clayzo-swift` |
+| Adds to your app | about 660 KB |
+| Requires | iOS 16 or macOS 13 |
+| Plays | documents (`.json`) and bundles (`.clayzo`), including interactive ones |
+
+Versions match the npm packages: `clayzo-swift` 0.3.6 plays what `clayzo` 0.3.6 authors and packages.
+
+## Install
+
+In Xcode, choose **File → Add Package Dependencies** and enter `https://github.com/Clayzo/clayzo-swift`. Pick **Up to Next Major** from 0.3.6 and add the `Clayzo` library to your app target.
+
+In a `Package.swift`:
+
+```swift
+dependencies: [
+  .package(url: "https://github.com/Clayzo/clayzo-swift.git", from: "0.3.6")
+],
+targets: [
+  .target(name: "MyApp", dependencies: [
+    .product(name: "Clayzo", package: "clayzo-swift")
+  ])
+]
+```
+
+Xcode downloads the package and its engine once and verifies its checksum. No other tools, and nothing to install on your machine.
+
+## Play a bundle
+
+Package the document with the CLI, add the `.clayzo` file to your app's resources, and play it:
+
+```bash
+npx clayzo package animations/hero.json animations/hero.clayzo
+```
+
+```swift
+import Clayzo
+import SwiftUI
+
+struct HeroView: View {
+  let bundle = try! ClayzoBundle(contentsOf: Bundle.main.url(forResource: "hero", withExtension: "clayzo")!)
+
+  var body: some View {
+    try! ClayzoPlayer(bundle: bundle)
+  }
+}
+```
+
+A bundle carries its fonts and images, so this is the whole integration. The player sizes itself to the document's aspect ratio and starts playing, looping, as soon as it appears. See [Bundles](/exporting/bundles) for what goes into one.
+
+You can also fetch a bundle over the network and pass the bytes to `ClayzoBundle(data:)`; the file format is the same one the browser players load.
+
+## Play a document
+
+A document with no fonts or images needs only its JSON:
+
+```swift
+let document = try ClayzoDocument(json: Data(contentsOf: url))
+ClayzoPlayer(document: document)
+```
+
+For a document that references assets by id, register them yourself:
+
+```swift
+ClayzoDocument.registerFont(id: "manrope", data: manropeBytes)   // once, for the whole app
+ClayzoPlayer(document: document, images: ["hero": heroJPEG])
+```
+
+Font ids and image ids match the document's asset ids. Register the fallback face as `"*"` for documents that name a font family without an asset. Fonts are registered once per app, not per player.
+
+## UIKit and AppKit
+
+`ClayzoPlayerView` is the same player as a view you own:
+
+```swift
+let player = try ClayzoPlayerView.make(frame: bounds)
+try player.load(bundle)          // fonts, images and document in one call
+view.addSubview(player)
+```
+
+| Member | Description |
+| --- | --- |
+| `document` | The document being played. Setting it restarts from tick zero. |
+| `isPlaying` | Start and stop the clock. |
+| `loops` | Loop playback. On by default. |
+| `tick` | The current tick. Set it to seek. |
+| `setImage(_:data:)`, `registerFont(id:data:)` | Register assets by id. |
+| `setInput(_:_:)`, `fire(_:)` | Set a declared input, or fire a trigger. |
+| `onInteractionEvent` | Receive hit-area events. |
+| `isInteractionEnabled` | Forward touches to the document. On by default. |
+
+Give the view the document's aspect ratio; the document is scaled to fill it.
+
+## Interaction
+
+Documents that declare [interactivity](/authoring/interactivity) respond to touch without any setup. A finger is the pointer: bindings follow it while it moves, a tap on a hit area is a click, and springs settle after it lifts. While a finger rests on an interactive document the player keeps the touch, so a drag drives the document rather than a navigation back-swipe or an enclosing scroll view. Turn `isInteractionEnabled` off for a player that should only be watched.
+
+Hit-area events arrive as they happen:
+
+```swift
+ClayzoPlayer(bundle: bundle)
+  .onInteractionEvent { event in
+    if event.kind == .click { select(event.hitAreaId) }
+  }
+```
+
+`event.kind` is `enter`, `leave`, `down`, `up` or `click`; `hitAreaId` and `nodeId` name what was hit.
+
+Declared inputs work as they do on the web:
+
+```swift
+player.setInput("reach", .number(0.8))
+player.fire("pulse")
+```
+
+A number input is clamped to the range the document declares. Values are `.number`, `.boolean`, `.point(x, y)` or `.color(r, g, b, a)`.
+
+## Size and App Clips
+
+The package adds about 660 KB to an app, so it fits comfortably inside an App Clip's budget. Documents are separate: a bundle's size is its images and fonts. Package images at the size they are displayed rather than at their source resolution, and consider fetching bundles at runtime instead of shipping them in the clip — the limit applies to the installed clip, not to what it downloads.
+
+## What renders
+
+Everything the WebGL player draws: shapes, paths, text, images, gradients, clips, mattes, blend modes, blur and drop shadow, glass, refraction, dithering, duotone, pixelation, mesh gradients and custom shaders — including shaders that call `toLinearSrgb` and `fromLinearSrgb`.
+
+Not yet: Lottie nodes, and a second finger (the first touch is the pointer).
+
+Two things to know when authoring for phones:
+
+- The player renders at the view's size in device pixels, so a document shown at 390 pt on a 3× display renders at 1170 px wide. A custom shader that mixes device pixels and document units renders differently at different sizes; see [Things that bite](/authoring/documents#things-that-bite) for how to write one that scales.
+- A bundle with several font families uses the first as the fallback face for runs that name a family without an asset.
