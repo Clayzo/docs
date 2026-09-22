@@ -2,7 +2,7 @@
 
 ## About this project
 
-- This is the public documentation for Clayzo (the `clayzo` CLI, `@clayzo/animation`, `@clayzo/webgl-player`, `@clayzo/canvaskit-player` and the agent skills), built on [Mintlify](https://mintlify.com).
+- This is the public documentation for Clayzo (the `clayzo` CLI, `@clayzo/animation`, `@clayzo/webgl-player`, `@clayzo/canvaskit-player`, the `clayzo-swift` package for iOS and macOS, and the agent skills), built on [Mintlify](https://mintlify.com).
 - Pages are MDX files with YAML frontmatter. Navigation lives in `docs.json`.
 - Run `mint dev` to preview locally and `mint broken-links` to check links.
 - The source of truth for behaviour is the Clayzo repository: CLI help text, package READMEs and the two agent skills. Check them before documenting a flag or option.
@@ -10,7 +10,7 @@
 ## Terminology
 
 - "Document" for an animation JSON file; "bundle" for a `.clayzo` archive.
-- "Player" for the browser runtimes; "WebGL player" and "CanvasKit player", never "renderer" in customer-facing text unless choosing between them.
+- "Player" for the browser runtimes; "WebGL player" and "CanvasKit player", never "renderer" in customer-facing text unless choosing between them. "The Swift package" or "native playback" for iOS and macOS.
 - "Agent" for Claude Code, Cursor, Codex and similar; "skills" for the two Clayzo skills.
 - "Ticks" for document time; say "ticks" not "frames" when referring to CLI options.
 

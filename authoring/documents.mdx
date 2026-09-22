@@ -188,6 +188,7 @@ Effects chain: an effect's `inputId` may be another effect. `glass` and `refract
 - **A composition needs `width`, `height` and `durationTicks`**, not only `nodes` and `rootNodeIds`.
 - **Write the file with `writeFileSync`.** A top-level `await` fails under `tsx` in a CommonJS project, with an error that names esbuild rather than your script.
 - **Text `wrap` defaults to wrapping inside the box.** Set `wrap: "none"` on single lines.
+- **A custom shader sees device pixels.** Its coordinate and its `point` parameters arrive in device pixels; `number` parameters arrive as written. A shader that measures a `number` radius against a `point` centre only looks right at one render size — a preview, a phone at 3× and an export all differ. Declare a `point` parameter with value `{ x: 1, y: 1 }` (it arrives as the render scale) and divide the device-pixel inputs by it, so the shader works in document units everywhere.
 
 ## Validate and stamp, every time
 
