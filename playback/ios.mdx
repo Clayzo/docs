@@ -123,6 +123,26 @@ player.fire("pulse")
 
 A number input is clamped to the range the document declares. Values are `.number`, `.boolean`, `.point(x, y)` or `.color(r, g, b, a)`.
 
+## Building documents in Swift
+
+Documents are usually authored with the TypeScript package and shipped as bundles. When an app has to build one at runtime — a chart from live data, a card carrying the user's name — the package's second library, `ClayzoAuthoring`, is the document model as Swift types, generated from the same schema the TypeScript package validates against.
+
+```swift
+import ClayzoAuthoring
+
+var document = AnimationDocument(id: "chart", name: "Chart", width: 600, height: 400, durationTicks: 720)
+document.add(.rect(id: "bar", width: .constant(Size2(width: 72, height: 160)), cornerRadius: .constant(24),
+                   style: .fill(Color(hex: 0xff5c8a)), transform: .at(120, 260)))
+
+let stamped = try document.stamped()            // the revision, computed from the contents
+ClayzoPlayer(document: try stamped.opened())    // play it
+let bytes = try document.package()              // or write a .clayzo the CLI and web players read
+```
+
+Every node kind, animatable, keyframe and effect parameter is there under its schema name (`RectNode`, `Animatable<Size2>`, `Keyframe`), so a document built in Swift is the same document a script would have written. Semantic checks — ids that resolve, limits — still come from `clayzo review` on the exported bundle.
+
+Add the `ClayzoAuthoring` library to your target alongside `Clayzo`; it costs nothing unless imported.
+
 ## Size and App Clips
 
 The package adds about 660 KB to an app, so it fits comfortably inside an App Clip's budget. Documents are separate: a bundle's size is its images and fonts. Package images at the size they are displayed rather than at their source resolution, and consider fetching bundles at runtime instead of shipping them in the clip — the limit applies to the installed clip, not to what it downloads.
