@@ -29,9 +29,11 @@ The engine is embedded in the package. There is no WASM file to stage, no CDN, a
 | `interactionElement` | `HTMLElement` | Listen for pointer events on this element instead of the canvas. |
 | `loop` | `boolean` | Loop playback. |
 | `resolution` | `"display"`, `"document"` or a number | Render at the canvas's displayed size (default), at the document's own size, or at a fixed scale. |
+| `maxPixelRatio` | `number` | The highest device pixel ratio `"display"` renders at. Default `2`. See [Resolution](#resolution). |
 | `pauseWhenOffscreen` | `boolean` | Stop drawing while the canvas is out of view. Default on. |
+| `releaseWhenOffscreen` | `boolean` | Free the player's GPU memory while the canvas is far out of view. Default on; needs `pauseWhenOffscreen`. See [Many players on one page](#many-players-on-one-page). |
 | `onFrame` | `(stats) => void` | Called after each frame with draw counts and `frameMs`. |
-| `onError` | `(error) => void` | Called when a frame fails. |
+| `onError` | `(error) => void` | Called when a frame fails, an image fails to load, or the GPU context is lost and can't be replaced yet. The player keeps running and retries. |
 
 The promise resolves once fonts are loaded and the first frame can draw. Images stream in and trigger a redraw as they land.
 
@@ -71,10 +73,33 @@ Run it over every document you ship. See [Choosing a renderer](/playback/choosin
 
 ## Many players on one page
 
-Put as many players on a page as the design needs. Players share GPU resources behind the scenes, off-screen players stop drawing, and a player whose frame hasn't changed costs nothing. On a slow machine the page keeps every player moving at a lower but steady rate rather than letting one starve, and drops render resolution only when that actually helps.
+Players share GPU contexts, so a page isn't limited by how many contexts the browser allows. Every player still needs memory for its pixels, though, and a phone closes a page that uses too much: in iOS Safari the page goes blank. The player keeps that memory bounded for you:
 
-Rendering at the canvas's displayed size is the default. A 1920×1080 document shown in a 320 px card renders 320 px wide.
+- **Off-screen players stop drawing.** A player whose frame hasn't changed costs nothing either.
+- **Far off-screen players free their GPU memory.** Once a canvas is more than one viewport out of view, the player releases its GPU memory and its canvas's pixels. The canvas keeps its size, so your layout doesn't move. When the canvas comes within half a viewport of the screen, the player draws the same frame again before you can see it.
+- **A released player keeps its state.** It keeps its document, tick, playing or paused state, inputs and pointer state. The clock doesn't run while a player is out of view, so `player.tick` is the same when it comes back as when it left, and playback continues from there.
+- **Rendering is sized to the canvas.** A 1920×1080 document shown in a 320 px card renders 320 px wide, at no more than 2× the device pixel ratio.
+
+So memory follows the players near the screen, not the number of players on the page. On a slow machine the page keeps every player moving at a lower but steady rate rather than letting one starve, and drops render resolution only when that helps.
+
+Turn release off for a player that must reappear instantly, with no redraw:
+
+```ts
+const player = await createPlayer({ canvas, document, releaseWhenOffscreen: false });
+```
+
+The player can only tell when the canvas is out of view, not when something covers it. If an opaque overlay covers a player, unmount the player or call `pause()`.
+
+If the browser loses the GPU context, which can happen under memory pressure or after a driver reset, the canvas keeps its last frame. The player moves to a new context and keeps playing, and nothing is thrown.
 
 ## Resolution
 
 `resolution: "display"` renders to the canvas's CSS size times the device pixel ratio, capped at the document's size. `"document"` always renders at the document's size, which per-pixel effects such as dithering may want. A number is a fixed multiplier.
+
+With `"display"`, the device pixel ratio is capped at `maxPixelRatio`, which defaults to `2`. On a 3× phone this renders, and holds in memory, less than half the pixels, with no visible difference for typical animations. Raise it for documents with fine text or hairlines that must be sharp on 3× screens, or pass `Infinity` to remove the cap:
+
+```ts
+const player = await createPlayer({ canvas, document, maxPixelRatio: 3 });
+```
+
+If the canvas is sized by its CSS width alone, the player keeps its height at the document's aspect ratio by setting the canvas's `aspect-ratio`, unless your CSS already sets one. A canvas you size with both width and height is left as it is.

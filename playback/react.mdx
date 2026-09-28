@@ -24,7 +24,7 @@ export function Hero() {
 | `document` | The `AnimationDocument` to play. Required. |
 | `options` | Everything `createPlayer` accepts except `canvas` and `document`. |
 | `onReady` | Called with the `PlayerHandle` once the first frame can draw. Keep the handle to call `setInput`, `fire`, `seek` and so on. |
-| `onPlayerError` | Called if creation or a frame fails. |
+| `onPlayerError` | Called if creation or a frame fails. From `@clayzo/webgl-player/react`, every player failure comes here, and nothing is thrown into React. One broken animation can't unmount your page, so render a fallback from this callback if you want one. |
 
 <Warning>
   The player is recreated when `document` or `options` change identity. Build `options` once with `useMemo`, and keep callbacks behind refs or in `useCallback`, so a re-render doesn't tear down and rebuild the renderer.
