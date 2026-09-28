@@ -32,7 +32,7 @@ The engine is embedded in the package. There is no WASM file to stage, no CDN, a
 | `maxPixelRatio` | `number` | The highest device pixel ratio `"display"` renders at. Default `2`. See [Resolution](#resolution). |
 | `pauseWhenOffscreen` | `boolean` | Stop drawing while the canvas is out of view. Default on. |
 | `releaseWhenOffscreen` | `boolean` | Free the player's GPU memory while the canvas is far out of view. Default on; needs `pauseWhenOffscreen`. See [Many players on one page](#many-players-on-one-page). |
-| `onFrame` | `(stats) => void` | Called after each frame with draw counts and `frameMs`. |
+| `onFrame` | `(stats) => void` | Called after each frame the player draws, with its timings and draw counts. See [Frame timings](#frame-timings). |
 | `onError` | `(error) => void` | Called when a frame fails, an image fails to load, or the GPU context is lost and can't be replaced yet. The player keeps running and retries. |
 
 The promise resolves once fonts are loaded and the first frame can draw. Images stream in and trigger a redraw as they land.
@@ -91,6 +91,30 @@ const player = await createPlayer({ canvas, document, releaseWhenOffscreen: fals
 The player can only tell when the canvas is out of view, not when something covers it. If an opaque overlay covers a player, unmount the player or call `pause()`.
 
 If the browser loses the GPU context, which can happen under memory pressure or after a driver reset, the canvas keeps its last frame. The player moves to a new context and keeps playing, and nothing is thrown.
+
+## Frame timings
+
+`onFrame` reports what each drawn frame cost on the main thread, in milliseconds:
+
+| Field | Description |
+| --- | --- |
+| `totalMs` | The whole frame. Compare this against your frame budget, about 16.7 ms at 60 fps. |
+| `coreMs` | Working out the frame from the document. `0` when the frame was reused. |
+| `renderMs` | Drawing it. `frameMs` is the same number. |
+| `presentMs` | Copying the finished frame onto your canvas. |
+| `frameCached` | Whether the frame was reused rather than worked out again. |
+
+```ts
+const player = await createPlayer({
+  canvas,
+  document,
+  onFrame: (stats) => {
+    if (stats.totalMs > 8) console.warn(`slow frame: ${stats.totalMs.toFixed(1)} ms`);
+  },
+});
+```
+
+The GPU's share isn't included; on a weak GPU a frame can be cheap here and still arrive late.
 
 ## Resolution
 
