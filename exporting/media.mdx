@@ -1,6 +1,6 @@
 ---
 title: "Exporting media"
-description: "Render a document to MP4, MOV, WebM, GIF or a PNG sequence."
+description: "Render a document to MP4, MOV, WebM, animated WebP, GIF or a PNG sequence."
 ---
 
 ```bash
@@ -15,9 +15,12 @@ Export renders every frame with the same renderer the CanvasKit player uses, so 
 | --- | --- | --- |
 | `mp4` | No | Anywhere that takes video: social, ads, slides, email fallbacks |
 | `mov` | Yes | Overlays and compositing in video tools |
-| `webm` | Yes | Transparent video on the web |
+| `webm` | Yes | Transparent video on the web; Safari plays it without the transparency |
+| `webp` | Yes | Animated images with transparency that play everywhere, Safari included |
 | `gif` | No | Where only GIF is accepted |
 | `png-sequence` | Yes | One PNG per frame, for compositing or your own encoder |
+
+Animated WebP stores a run of identical frames once, and an animation that never changes becomes a still image. It is larger than WebM for long or large animations; for those, WebM or a player on the page is the better fit.
 
 For a single still, use [`render-frame`](/cli/render-frame) instead.
 
