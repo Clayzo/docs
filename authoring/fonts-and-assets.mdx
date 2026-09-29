@@ -32,9 +32,10 @@ Then reference it from the text run with `fontAssetId: "manrope"`. The `uri` res
 Things to know:
 
 - Use a permissively licensed face (an OFL family such as Manrope or Inter) that you can ship. A system font renders on your machine but can't be embedded, and fails everywhere else.
-- `fontWeight` doesn't select a weight from a family. Ship the static file for the weight you want, and keep `fontWeight` at 400 to 500 on that run, since 600 and above applies synthetic bold.
+- With a variable font, `fontWeight` sets its weight: one file covers every weight on its weight axis, and a value outside the axis's range is clamped to it.
+- A static font draws at its own weight. At a `fontWeight` of 600 and above, a face lighter than semibold is given a synthetic bold; a bold face is drawn as it is.
 - A glyph the face lacks draws as a hollow box. Stay within the face's character set.
-- Wrapping and alignment use deterministic glyph measurement rather than a full shaper. Complex scripts and ligatures aren't shaped. The `text.shaping_fallback` diagnostic is normal and means exactly this.
+- Text is kerned from the font. Complex scripts, right-to-left text and ligatures aren't shaped: each character draws as one glyph, left to right. The `text.shaping_fallback` diagnostic is normal and means exactly this.
 
 Family names still work locally, where the CLI can read installed fonts, and in the browser when you supply a loader (see below). A brand face you can't ship is the usual reason to use one.
 
