@@ -40,6 +40,8 @@ Serves one page: the document playing, scrubbable, with an export panel. Open th
 
 The preview is the fastest way to export anything with glass, refraction or a custom shader, because frames are rendered on your GPU instead of interpreted per pixel in Node. The rest of the pipeline is the same. See [Exporting media](/exporting/media).
 
+The export panel also writes an [animated SVG](/exporting/svg): choose **svg** as the format. It downloads straight away, since an SVG has no frames to render.
+
 The server holds a port until it's stopped, and prints its process id for exactly that:
 
 ```text

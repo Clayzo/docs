@@ -1,17 +1,17 @@
 ---
 title: "export"
-description: "Export mp4, mov, gif, webm, animated webp or a PNG sequence."
+description: "Export mp4, mov, gif, webm, animated webp, a PNG sequence or an animated SVG."
 ---
 
 ```text
 clayzo export <document.json> <output> [options]
 ```
 
-See [Exporting media](/exporting/media) for guidance on formats, quality and speed.
+See [Exporting media](/exporting/media) for guidance on formats, quality and speed, and [Animated SVG](/exporting/svg) for `--format svg`.
 
 | Option | Description |
 | --- | --- |
-| `--format <mp4\|mov\|gif\|webm\|webp\|png-sequence>` | Container. Required; the output extension is not read. |
+| `--format <mp4\|mov\|gif\|webm\|webp\|png-sequence\|svg>` | Container. Required; the output extension is not read. `svg` takes none of the options below. |
 | `--backend <cpu\|browser>` | `browser` rasterizes in a tab on this machine, far faster for glass and custom shaders. |
 | `--tier <draft\|review\|final\|master>` | Encoder quality tier. |
 | `--quality <0..100>` | Encoder quality. Default 85. |
@@ -36,8 +36,11 @@ npx clayzo export animations/badge.json badge.mov --format mov --alpha preserve
 npx clayzo export animations/sticker.json sticker.webp --format webp
 npx clayzo export animations/hero.json hero.webm --format webm --backend browser
 npx clayzo export animations/hero.json frames/ --format png-sequence --start 0 --end 480
+npx clayzo export animations/logo.json logo.svg --format svg
 ```
 
 Progress with an estimate prints to stderr. A JSON result with the output path, frame count and verification status prints to stdout.
+
+With `--format svg`, the result has the file's size, and its gzipped size. If the document has something SVG can't draw exactly, nothing is written, the result lists each node and why, and the command exits with status 1. See [Animated SVG](/exporting/svg).
 
 Requires a sign in.

@@ -36,6 +36,7 @@
             "group": "Exporting",
             "pages": [
               "exporting/media",
+              "exporting/svg",
               "exporting/bundles"
             ]
           },

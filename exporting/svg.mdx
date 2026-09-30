@@ -1,0 +1,58 @@
+---
+title: "Animated SVG"
+description: "Export a document as one small SVG file that plays wherever SVG does."
+---
+
+```bash
+npx clayzo export animations/hero.json hero.svg --format svg
+```
+
+An SVG export is a single self-contained file: vector shapes animated with CSS, with no script and nothing to install. It plays in an `<img>` tag, as a CSS background, inline in a page, and in a README. It scales to any size without blurring.
+
+The file is exact. At every frame of the document's frame rate it matches what a video export renders, and between frames the browser keeps animating at the display's refresh rate. It loops.
+
+## When to use it
+
+| Use SVG for | Use a video or a player for |
+| --- | --- |
+| Logos, icons, loaders, UI and product motion | Photos, video and anything mostly bitmap |
+| Places that take an image but not a video or a script | Documents with shader effects |
+| Crisp playback at any size and pixel density | Long pieces with a lot of per-frame change |
+
+Vector animations are small: a few kilobytes gzipped is typical. Images are embedded as they are, so a document with photos makes an SVG about the size of those photos.
+
+## Text
+
+Text is written as outlines of its glyphs, so the file needs no fonts and looks the same everywhere. The text in the SVG can't be selected or searched.
+
+Fonts resolve the way they do for any export: a run's font asset first, then its font family. A run with no font it can use is reported rather than left out.
+
+## What SVG can't draw
+
+The export only writes a file it can make exact. If a document has something SVG can't draw the way Clayzo does, such as a glass, refraction or custom shader effect, or a camera, nothing is written. The result names every node that stood in the way, and the command exits with status 1:
+
+```json
+{
+  "format": "svg",
+  "overall": "fail",
+  "output": null,
+  "issues": [
+    {
+      "nodeId": "goo-surface",
+      "node": "Goo surface",
+      "feature": "effect:custom-sksl",
+      "message": "The custom-sksl effect runs a GPU shader, which SVG cannot reproduce."
+    }
+  ]
+}
+```
+
+Change or remove those nodes, or export a [video](/exporting/media) instead.
+
+## From the preview
+
+In [`clayzo preview`](/cli/preview), open the export panel, choose **svg** and select **Render**. The file downloads from the page. If something can't be drawn exactly, the panel lists it instead.
+
+## Options
+
+`--format svg` takes no other export options. An SVG has no frames to render, resolution, quality or encoder: whatever shows it draws it, at its own size. Passing one of those options is an error rather than being ignored.
