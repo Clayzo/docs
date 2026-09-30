@@ -1,6 +1,6 @@
 ---
 title: "Exporting media"
-description: "Render a document to MP4, MOV, WebM, animated WebP, GIF or a PNG sequence."
+description: "Render a document to MP4, MOV, WebM, animated WebP, GIF, SVG or a PNG sequence."
 ---
 
 ```bash
@@ -19,8 +19,11 @@ Export renders every frame with the same renderer the CanvasKit player uses, so 
 | `webp` | Yes | Animated images with transparency that play everywhere, Safari included |
 | `gif` | No | Where only GIF is accepted |
 | `png-sequence` | Yes | One PNG per frame, for compositing or your own encoder |
+| `svg` | Yes | Vector motion that plays wherever an image does, at any size |
 
 Animated WebP stores a run of identical frames once, and an animation that never changes becomes a still image. It is larger than WebM for long or large animations; for those, WebM or a player on the page is the better fit.
+
+An SVG is one file animated with CSS, with text drawn as outlines, and it takes none of the options below. It matches every frame exactly, so if a document has something SVG can't draw, such as a shader effect or a camera, nothing is written and the command lists those nodes.
 
 For a single still, use [`render-frame`](/cli/render-frame) instead.
 
