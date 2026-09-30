@@ -1,7 +1,27 @@
 ---
 title: "doctor and update"
-description: "Check authentication, compatibility and updates."
+description: "See what's installed, and bring it all up to date."
 ---
+
+## update
+
+```text
+clayzo update [--yes] [--dry-run] [--json]
+```
+
+Brings everything to the current release: the `clayzo` CLI installed for your machine, this project's Clayzo packages and the agent skills. It lists what is behind and the command it will run for each, then asks before changing anything.
+
+- The project's packages are updated with its package manager, and each stays in the dependency section it's already in.
+- The skills are updated where they're installed: in the project, for your user, or both.
+- The CLI installed for your machine is updated with the package manager that installed it: npm, pnpm, Yarn or Bun.
+
+| Option | Description |
+| --- | --- |
+| `--yes` | Update without asking. Required when there's no terminal to ask in, such as CI or an agent. |
+| `--dry-run` | List what is behind and the commands, and change nothing. |
+| `--json` | Print the plan, and whether it was applied, as JSON on stdout. |
+
+The package managers' output goes to stderr. If a step fails, `update` stops with a `CLAYZO_UPDATE_FAILED` error naming the command that failed, and exits `1`.
 
 ## doctor
 
@@ -9,21 +29,23 @@ description: "Check authentication, compatibility and updates."
 clayzo doctor [--updates] [--json]
 ```
 
-Reports whether this machine is signed in, whether the installed packages and skills match each other and the CLI, and whether an update is available or required.
+Shows the CLI that is running, the CLI installed for your machine, this project's Clayzo packages, the agent skills and whether this machine is signed in, with an arrow on each one that is behind the current release. In a terminal it then offers to update them.
 
 | Option | Description |
 | --- | --- |
-| `--updates` | Force a fresh update check instead of using the cached one. |
+| `--updates` | Check for a release now instead of using the check cached for a day. |
 | `--json` | Print the full report as JSON. |
 
-Exit code `2` means an update is required before protected commands will run.
+Exit code `2` means this CLI is below the minimum the service supports, and protected commands won't run until it's updated.
 
-## update
+## Update notices
+
+When something is behind the current release, every command prints one line on stderr saying what, and the command that updates it. For example:
 
 ```text
-clayzo update [--json]
+[clayzo] clayzo 0.3.13 is out; you have 0.3.12 for this machine and 0.3.11 in this project. Run `clayzo update` to update everything.
 ```
 
-Checks for updates and prints the exact command to upgrade every Clayzo package and the skills together. It doesn't change anything. Run the command it prints.
+In a terminal, a command that finishes also offers to update, at most once a day. It never asks in CI or when an agent runs it. Set `NO_UPDATE_NOTIFIER=1` to turn notices and offers off.
 
 Neither command needs a sign in.

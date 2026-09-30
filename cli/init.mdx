@@ -4,10 +4,10 @@ description: "Install the Clayzo packages and agent skills in the current projec
 ---
 
 ```text
-clayzo init [--renderer webgl|canvaskit|both|none] [--no-skills] [--yes]
+clayzo init [--renderer webgl|canvaskit|both|none] [--global|--local] [--no-skills] [--yes] [--dry-run]
 ```
 
-Run as `npx clayzo@latest init` in a project that doesn't have Clayzo yet. It detects npm, pnpm, Yarn or Bun from the lockfile, installs `@clayzo/animation` and the chosen player as dependencies, installs `clayzo` as a dev dependency, all at one matching version, and runs `npx skills add clayzo/agent-skills` to install the two agent skills.
+Run as `npx clayzo@latest init` in a project that doesn't have Clayzo yet. It detects npm, pnpm, Yarn or Bun from the lockfile, installs `@clayzo/animation` and the chosen player as dependencies, installs the `clayzo` CLI for your whole machine or as a dev dependency, all at one matching version, and runs `npx skills add clayzo/agent-skills` to install the two agent skills.
 
 ## Options
 
@@ -17,13 +17,18 @@ Run as `npx clayzo@latest init` in a project that doesn't have Clayzo yet. It de
 | `--renderer canvaskit` | Install `@clayzo/canvaskit-player` instead. |
 | `--renderer both` | Install both players. |
 | `--renderer none` | Install no player. |
+| `--global` | Install the CLI for your whole machine, with the package manager that ran `init`. |
+| `--local` | Add the CLI to the project as a dev dependency. |
 | `--no-skills` | Don't install the agent skills. |
-| `--yes` | Accept the defaults without prompting. Implied when there is no terminal. |
+| `--yes` | Accept the defaults without prompting. Implied when there is no terminal. The CLI then goes into the project. |
+| `--dry-run` | Print the install commands instead of running them. |
 
 ## Prompts
 
-With a terminal and no `--renderer`, `init` asks whether to also install the CanvasKit player (default no). With skills enabled it asks whether to install them (default yes). The skills installer may then ask which agents and whether to install per project or globally; with `--yes` it installs both skills non-interactively.
+With a terminal and no `--renderer`, `init` asks whether to also install the CanvasKit player (default no). With skills enabled it asks whether to install them (default yes). Without `--global` or `--local`, it then asks whether to install the CLI for your whole machine (default yes). It skips that question when the project already has `clayzo` as a dependency, which it keeps and updates, and when the `clayzo` running `init` is already installed for your machine. The skills installer may then ask which agents and whether to install per project or globally; with `--yes` it installs both skills non-interactively.
+
+If the machine-wide install fails, for example because npm can't write to its global folder, `init` adds the CLI to the project instead.
 
 ## Output
 
-The commands it runs are printed to stderr as they run. A JSON summary with the project root, package manager, renderer choice and whether skills were installed is printed to stdout.
+The commands it runs are printed to stderr as they run. A JSON summary with the project root, package manager, renderer choice, whether skills were installed, and where the CLI went (`cli`: `global` or `project`) is printed to stdout.

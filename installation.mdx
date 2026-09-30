@@ -18,17 +18,17 @@ Nothing else. The CLI carries everything it needs to render frames and video loc
 npx clayzo@latest init
 ```
 
-Run it in the project root. It installs three things:
+Run it in the project root. It installs:
 
 | Installed | As | Purpose |
 | --- | --- | --- |
 | `@clayzo/animation` | dependency | Types, builders, validation and packaging used by authoring scripts |
 | `@clayzo/webgl-player` | dependency | Plays documents on your site |
-| `clayzo` | dev dependency | The CLI |
+| `clayzo` | for your whole machine, or a dev dependency | The CLI |
 
 Then it runs `npx skills add clayzo/agent-skills` to install the two Clayzo skills for your agent.
 
-Interactively it asks two questions: whether to also install `@clayzo/canvaskit-player` for full-fidelity playback, and whether to install the skills. Without a terminal, or with `--yes`, it takes the defaults.
+Interactively it asks three questions: whether to also install `@clayzo/canvaskit-player` for full-fidelity playback, whether to install the skills, and whether to install the CLI for your whole machine so every project can use it. Without a terminal, or with `--yes`, it takes the defaults, which add the CLI to the project as a dev dependency.
 
 | Flag | Effect |
 | --- | --- |
@@ -36,8 +36,13 @@ Interactively it asks two questions: whether to also install `@clayzo/canvaskit-
 | `--renderer canvaskit` | Install only the CanvasKit player |
 | `--renderer both` | Install both players |
 | `--renderer none` | Install no player, for projects that only export |
+| `--global` | Install the CLI for your whole machine |
+| `--local` | Add the CLI to the project as a dev dependency |
 | `--no-skills` | Skip the agent skills |
 | `--yes` | Accept every default without prompting |
+| `--dry-run` | Print the commands instead of running them |
+
+If the machine-wide install fails, for example because npm can't write to its global folder, the initializer adds the CLI to the project instead and says so.
 
 The initializer prints the commands it runs, then a JSON summary on stdout.
 
@@ -73,26 +78,36 @@ npx skills add clayzo/agent-skills
 
 Swap `@clayzo/webgl-player` for `@clayzo/canvaskit-player` if you want the full-fidelity player. See [Choosing a renderer](/playback/choosing-a-renderer).
 
+To install the CLI once for your machine instead of in each project, replace the dev dependency with:
+
+```bash
+npm install --global clayzo
+```
+
 ## iOS and macOS
 
 Native playback in Swift apps is a Swift package, not an npm package. Add `https://github.com/Clayzo/clayzo-swift` in Xcode and play the same documents and bundles the CLI produces. See [iOS and macOS](/playback/ios).
 
 ## Versions
 
-All Clayzo packages are released together and share one version number, the Swift package included. Install matching versions and upgrade them together. The CLI checks this for you:
+All Clayzo packages are released together and share one version number, the Swift package included. Install matching versions and upgrade them together.
+
+When the CLI on your machine, your project's Clayzo packages or the agent skills fall behind the current release, every command says so in one line on stderr. One command updates all of them:
 
 ```bash
-npx clayzo doctor --updates
+npx clayzo update
 ```
 
-It reports mismatched or outdated packages and skills, and `npx clayzo update` prints the exact command to upgrade. When a CLI version falls below the minimum the service supports, protected commands stop with a `CLAYZO_VERSION_UNSUPPORTED` error and the upgrade command to run.
+It shows what is behind and asks before changing anything. See [doctor and update](/cli/doctor). When a CLI version falls below the minimum the service supports, protected commands stop with a `CLAYZO_VERSION_UNSUPPORTED` error and the command to run.
 
 ## Running the CLI
 
-After installation the CLI is on your project's path:
+With the CLI installed for your machine, run it from anywhere:
 
 ```bash
-npx clayzo --help
+clayzo --help
 ```
 
-Every example in these docs uses `npx clayzo`. With pnpm, `pnpm clayzo` works too, and `npx clayzo@latest` runs the newest release without installing it.
+Every example in these docs uses `npx clayzo`, which works either way: it runs the project's CLI when the project has one, and the one installed for your machine otherwise. With pnpm, `pnpm clayzo` works too, and `npx clayzo@latest` runs the newest release without installing it.
+
+A project that has `clayzo` as a dev dependency keeps its version. The CLI installed for your machine hands `preview`, `render-frame`, `review`, `package` and `export` to the project's CLI, so everyone working on the project, and its CI, renders with the same version.
