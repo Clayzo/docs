@@ -1,6 +1,6 @@
 ---
 title: "export"
-description: "Export mp4, mov, gif, webm or a PNG sequence."
+description: "Export mp4, mov, gif, webm, animated webp or a PNG sequence."
 ---
 
 ```text
@@ -11,12 +11,12 @@ See [Exporting media](/exporting/media) for guidance on formats, quality and spe
 
 | Option | Description |
 | --- | --- |
-| `--format <mp4\|mov\|gif\|webm\|png-sequence>` | Container. Required; the output extension is not read. |
+| `--format <mp4\|mov\|gif\|webm\|webp\|png-sequence>` | Container. Required; the output extension is not read. |
 | `--backend <cpu\|browser>` | `browser` rasterizes in a tab on this machine, far faster for glass and custom shaders. |
 | `--tier <draft\|review\|final\|master>` | Encoder quality tier. |
 | `--quality <0..100>` | Encoder quality. Default 85. |
 | `--supersample <1..4>` | Render at a multiple of the output size and downsample. |
-| `--alpha <preserve\|flatten>` | Keep transparency (mov, webm, png) or flatten onto `--flatten-color`. |
+| `--alpha <preserve\|flatten>` | Keep transparency (mov, webm, webp, png) or flatten onto `--flatten-color`. |
 | `--flatten-color <#RRGGBB>` | Colour to flatten transparency onto. |
 | `--codec <name>` | Override the codec for the chosen format. |
 | `--start <tick> --end <tick>` | Export a tick range instead of the whole document. |
@@ -33,6 +33,7 @@ See [Exporting media](/exporting/media) for guidance on formats, quality and spe
 ```bash
 npx clayzo export animations/hero.json hero.mp4 --format mp4 --tier final
 npx clayzo export animations/badge.json badge.mov --format mov --alpha preserve
+npx clayzo export animations/sticker.json sticker.webp --format webp
 npx clayzo export animations/hero.json hero.webm --format webm --backend browser
 npx clayzo export animations/hero.json frames/ --format png-sequence --start 0 --end 480
 ```
