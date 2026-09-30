@@ -23,7 +23,13 @@ description: "The problems people hit, and what they mean."
     The command needs a sign in. Run `npx clayzo login`, or set `CLAYZO_TOKEN` in CI. See [Authentication](/authentication).
   </Accordion>
   <Accordion title="CLAYZO_VERSION_UNSUPPORTED">
-    The installed CLI is older than the minimum the service supports. Run the command in the error, or `npx clayzo update`, and upgrade every Clayzo package together.
+    The installed CLI is older than the minimum the service supports. Run the command in the error, usually `npx clayzo update`, which updates the CLI, the project's packages and the skills together.
+  </Accordion>
+  <Accordion title="CLAYZO_UPDATE_FAILED">
+    A package manager command that `clayzo update` ran failed. The error names the command; run it yourself to see the full output. For a machine-wide npm install that fails with `EACCES`, npm can't write to its global folder: see npm's guide to [resolving EACCES permissions errors](https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally).
+  </Accordion>
+  <Accordion title="CLAYZO_INIT_CLI_OLDER">
+    The project already has newer Clayzo packages than the `clayzo` running `init`, which would downgrade them. Run `npx clayzo update` first, or run `npx clayzo@latest init`.
   </Accordion>
   <Accordion title="CLAYZO_LOGIN_EXPIRED">
     The device code wasn't approved in time. Run `npx clayzo login` again and approve it in the browser.

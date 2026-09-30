@@ -15,8 +15,8 @@ clayzo <command> [input] [output] [options]
 | [`review`](/cli/review) | Write a revision-bound review packet | Yes |
 | [`package`](/cli/package) | Build a portable `.clayzo` bundle | Yes |
 | [`export`](/cli/export) | Export MP4, MOV, GIF, WebM, WebP or a PNG sequence | Yes |
-| [`doctor`](/cli/doctor) | Check authentication, compatibility and updates | No |
-| [`update`](/cli/doctor) | Check for updates and print the exact upgrade command | No |
+| [`doctor`](/cli/doctor) | Show what's installed, sign in, and what is behind | No |
+| [`update`](/cli/doctor) | Update the CLI, the project's packages and the skills together | No |
 | [`login`](/cli/auth) | Authorize this device through the browser | — |
 | [`logout`](/cli/auth) | Revoke and remove locally stored credentials | — |
 | [`token create`](/cli/auth) | Create a revocable CI token, printed once | Yes |
@@ -38,7 +38,8 @@ clayzo <command> [input] [output] [options]
 | --- | --- |
 | `CLAYZO_TOKEN` | A CI token; used instead of stored credentials when set |
 | `CLAYZO_CONFIG_DIR` | Where credentials are stored |
+| `NO_UPDATE_NOTIFIER` | Turns off update notices and the offer to update |
 
 ## Updates
 
-Protected commands check for updates when they run and print a notice on stderr when packages or skills are behind. `clayzo update` prints the exact command to upgrade everything together.
+Every command prints a one-line notice on stderr when the CLI, the project's packages or the skills are behind the current release. `clayzo update` updates them together. See [doctor and update](/cli/doctor).
