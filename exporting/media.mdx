@@ -46,13 +46,7 @@ For a single still, use [`render-frame`](/cli/render-frame) instead.
 
 Export cost is per layer, not per second. A flat document renders quickly on the CPU. Every node with opacity below 1, every isolated group, every drop shadow and every effect adds an offscreen pass per frame, and glass, refraction and custom shaders are evaluated per pixel. Progress with an estimate prints to stderr.
 
-If the first estimate is more than a minute, render on your GPU instead:
-
-```bash
-npx clayzo export animations/hero.json hero.mp4 --format mp4 --backend browser
-```
-
-This starts the preview server, prints its URL, and renders in the browser tab that opens. On effect-heavy documents it is orders of magnitude faster. The encoding, quality tiers and verification are unchanged. GPU and CPU rasterisation aren't bit-identical, so a browser export matches what you saw in the preview rather than a terminal export, and the tab has to stay open while it works.
+Exports render on your GPU when that's faster, in a Chrome, Edge, Brave or Chromium started headless; on effect-heavy documents that is orders of magnitude faster. Without one of those browsers or a hardware GPU, frames render on the CPU. `--backend gpu` or `--backend cpu` forces either. GPU and CPU rasterisation aren't bit-identical, so a GPU export matches the preview rather than a CPU export.
 
 `--parallelism <n>` sets the worker threads for CPU rendering.
 
