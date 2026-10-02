@@ -11,7 +11,7 @@ description: "The problems people hit, and what they mean."
     Frames are transparent wherever nothing is drawn, and `canvas.backgroundColor` is metadata. Draw a full-canvas `rect` as the first root node.
   </Accordion>
   <Accordion title="Export is slow">
-    Cost is per layer, not per second: opacity below 1, isolated groups, shadows and every effect add an offscreen pass per frame, and glass, refraction and custom shaders are evaluated per pixel. If the first estimate exceeds a minute, add `--backend browser` or export from `clayzo preview` to render on the GPU. In the document, animate `style.fill.opacity` instead of node `opacity` on solid shapes.
+    Cost is per layer, not per second: opacity below 1, isolated groups, shadows and every effect add an offscreen pass per frame, and glass, refraction and custom shaders are evaluated per pixel. Exports render on the GPU only when Chrome, Edge, Brave or Chromium is installed; without one, install one or export from `clayzo preview`. In the document, animate `style.fill.opacity` instead of node `opacity` on solid shapes.
   </Accordion>
   <Accordion title="Something doesn't draw in the WebGL player but does in the preview">
     The document uses a construct the WebGL player doesn't cover: a matte, a nested clip, audio, or a shader calling a colour-space intrinsic. Run `checkCoverage` and read `reasons`. Change the document, or ship the CanvasKit player for it. See [Choosing a renderer](/playback/choosing-a-renderer).

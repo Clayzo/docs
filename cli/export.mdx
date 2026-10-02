@@ -12,7 +12,7 @@ See [Exporting media](/exporting/media) for guidance on formats, quality and spe
 | Option | Description |
 | --- | --- |
 | `--format <mp4\|mov\|gif\|webm\|webp\|png-sequence\|svg>` | Container. Required; the output extension is not read. `svg` takes none of the options below. |
-| `--backend <cpu\|browser>` | `browser` rasterizes in a tab on this machine, far faster for glass and custom shaders. |
+| `--backend <auto\|cpu\|gpu\|browser>` | Where frames are drawn. `auto` (default) uses the GPU, through an installed Chrome, Edge, Brave or Chromium, when that's faster, and the CPU otherwise. `gpu` and `cpu` force one; `browser` renders in a tab you open. |
 | `--tier <draft\|review\|final\|master>` | Encoder quality tier. |
 | `--quality <0..100>` | Encoder quality. Default 85. |
 | `--supersample <1..4>` | Render at a multiple of the output size and downsample. |
