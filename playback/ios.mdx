@@ -1,6 +1,6 @@
 ---
 title: "iOS and macOS"
-description: "Play documents natively in Swift apps. One Swift package, about 660 KB, no web view."
+description: "Play documents natively in Swift apps. One Swift package, about 1.4 MB, no web view."
 ---
 
 Clayzo plays documents natively on iOS and macOS through a Swift package. It draws with Metal, runs the same engine as the browser players, and takes the same documents and `.clayzo` bundles. There is no web view and nothing to fetch at runtime.
@@ -8,7 +8,7 @@ Clayzo plays documents natively on iOS and macOS through a Swift package. It dra
 | | |
 | --- | --- |
 | Package | `https://github.com/Clayzo/clayzo-swift` |
-| Adds to your app | about 660 KB |
+| Adds to your app | about 1.4 MB |
 | Requires | iOS 16 or macOS 13 |
 | Plays | documents (`.json`) and bundles (`.clayzo`), including interactive ones |
 
@@ -127,7 +127,7 @@ A number input is clamped to the range the document declares. Values are `.numbe
 
 ## Size and App Clips
 
-The package adds about 1.5 MB to an app, so it fits comfortably inside an App Clip's budget. Documents are separate: a bundle's size is its images, fonts and audio. Package images at the size they are displayed rather than at their source resolution, and consider fetching bundles at runtime instead of shipping them in the clip — the limit applies to the installed clip, not to what it downloads.
+The package adds about 1.4 MB to an app, so it fits comfortably inside an App Clip's budget. Documents are separate: a bundle's size is its images, fonts and audio. Package images at the size they are displayed rather than at their source resolution, and consider fetching bundles at runtime instead of shipping them in the clip — the limit applies to the installed clip, not to what it downloads.
 
 ## What renders
 
