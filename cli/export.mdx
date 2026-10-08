@@ -27,6 +27,7 @@ See [Exporting media](/exporting/media) for guidance on formats, quality and spe
 | `--progress-preview <file.png>` | Where to write the progress sheet. |
 | `--no-progress` | Don't write a progress sheet. |
 | `--no-verify` | Skip decoding the result to verify it. |
+| `--no-audio` | Leave the document's sound out. mp4, webm and mov carry it otherwise (AAC, Opus, PCM). See [Audio](/authoring/audio). |
 
 ## Examples
 
@@ -37,8 +38,9 @@ npx clayzo export animations/sticker.json sticker.webp --format webp
 npx clayzo export animations/hero.json hero.webm --format webm --backend browser
 npx clayzo export animations/hero.json frames/ --format png-sequence --start 0 --end 480
 npx clayzo export animations/logo.json logo.svg --format svg
+npx clayzo export animations/hero.json hero-silent.mp4 --format mp4 --no-audio
 ```
 
-Progress with an estimate prints to stderr. A JSON result with the output path, frame count and verification status prints to stdout.
+Progress with an estimate prints to stderr. A JSON result with the output path, frame count and verification status prints to stdout. For a document with sound, `metadata.audioMuxed` says whether the file carries it and `verification.audioSeconds` is the length of sound decoded back.
 
 Requires a sign in.

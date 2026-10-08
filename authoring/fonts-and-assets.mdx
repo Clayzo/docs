@@ -69,6 +69,7 @@ const player = await createPlayer({
     fontAssetLoader: async (asset) => bytesFrom(`/fonts/${asset.uri}`),
     familyFontLoader: async (family, weight) =>
       family === "Inter" ? bytesFrom("/fonts/Inter.ttf") : null,
+    audioAssetLoader: async (asset) => bytesFrom(`/cdn/${asset.id}`),
   },
 });
 ```
@@ -93,7 +94,7 @@ Wire this up in development. It is the only signal you get.
 
 ## Make it portable
 
-A `.clayzo` bundle embeds the document with every font and image it uses, so no loader configuration is needed anywhere:
+A `.clayzo` bundle embeds the document with every font, image and audio file it uses, so no loader configuration is needed anywhere:
 
 ```bash
 npx clayzo package animations/hero.json animations/hero.clayzo

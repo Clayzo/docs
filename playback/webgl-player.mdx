@@ -24,10 +24,11 @@ The engine is embedded in the package. There is no WASM file to stage, no CDN, a
 | --- | --- | --- |
 | `canvas` | `HTMLCanvasElement` | The canvas to draw into. Required. |
 | `document` | `AnimationDocument` | The document to play. Required. |
-| `loaders` | `PlayerAssetLoaders` | Image and font loaders. By default assets are fetched by their `uri`. See [Fonts and assets](/authoring/fonts-and-assets). |
+| `loaders` | `PlayerAssetLoaders` | Image, font and audio loaders. By default assets are fetched by their `uri`. See [Fonts and assets](/authoring/fonts-and-assets). |
 | `interactive` | `boolean` | Run the document's pointer bindings. Default on for documents that declare interaction. |
 | `interactionElement` | `HTMLElement` | Listen for pointer events on this element instead of the canvas. |
 | `loop` | `boolean` | Loop playback. |
+| `muted` | `boolean` | Mute the document's audio. Default on, so the page decides when it makes sound. See [Audio](/authoring/audio). |
 | `resolution` | `"display"`, `"document"` or a number | Render at the canvas's displayed size (default), at the document's own size, or at a fixed scale. |
 | `maxPixelRatio` | `number` | The highest device pixel ratio `"display"` renders at. Default `2`. See [Resolution](#resolution). |
 | `pauseWhenOffscreen` | `boolean` | Stop drawing while the canvas is out of view. Default on. |
@@ -45,6 +46,8 @@ The promise resolves once fonts are loaded and the first frame can draw. Images 
 | `playing` | Whether the clock is running |
 | `play()`, `pause()` | Start and stop the clock |
 | `seek(tick)` | Move to a tick; resolves when the frame is drawn |
+| `hasAudio` | Whether the document has audio nodes, so the page knows to offer a sound control |
+| `muted`, `setMuted(muted)` | Whether sound is off, and turn it off or on. Browsers only start sound from a click, tap or key press |
 | `setInput(name, value)` | Set a declared input: a number, boolean, point or colour |
 | `fire(name)` | Fire a trigger input |
 | `dispose()` | Release everything. Call it when the canvas leaves the page. |

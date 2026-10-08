@@ -1,9 +1,9 @@
 ---
 title: "Bundles (.clayzo)"
-description: "Package a document with its fonts and images so it plays anywhere."
+description: "Package a document with its fonts, images and audio so it plays anywhere."
 ---
 
-A `.clayzo` file is a document plus every font and image it references, in one archive. A bundle needs no asset URLs and no font loaders: hand it to a player and it plays.
+A `.clayzo` file is a document plus every font, image and audio file it references, in one archive. A bundle needs no asset URLs and no font loaders: hand it to a player and it plays.
 
 ## Packaging
 
@@ -11,7 +11,7 @@ A `.clayzo` file is a document plus every font and image it references, in one a
 npx clayzo package animations/hero.json animations/hero.clayzo
 ```
 
-Packaging resolves each asset's `uri` relative to the document, embeds the bytes, and records a manifest. It refuses to build a bundle whose text would render as nothing, so a missing font fails here rather than on someone's screen. `--allow-incomplete` overrides that for deliberate partial packaging.
+Packaging resolves each asset's `uri` relative to the document, embeds the bytes, and records a manifest. It refuses to build a bundle whose text would render as nothing, so a missing font fails here rather than on someone's screen. A missing image or [audio](/authoring/audio) file fails it too, naming the asset. `--allow-incomplete` overrides that for deliberate partial packaging.
 
 From a script, the same operation is one call:
 
@@ -19,7 +19,7 @@ From a script, the same operation is one call:
 import { packageClayzoBundle } from "@clayzo/animation/authoring";
 
 const packaged = await packageClayzoBundle(document, {
-  assetBytes: { manrope: fontBytes, photo: imageBytes },
+  assetBytes: { manrope: fontBytes, photo: imageBytes, score: audioBytes },
 });
 writeFileSync("hero.clayzo", packaged.bytes);
 ```
@@ -35,13 +35,13 @@ import { readClayzoBundle } from "@clayzo/animation/bundle";
 import { createPlayer } from "@clayzo/webgl-player";
 
 const bytes = new Uint8Array(await (await fetch("/animations/hero.clayzo")).arrayBuffer());
-const { document, imageAssetLoader, fontAssetLoader, familyFontLoader } =
+const { document, imageAssetLoader, fontAssetLoader, familyFontLoader, audioAssetLoader } =
   await readClayzoBundle(bytes);
 
 const player = await createPlayer({
   canvas,
   document,
-  loaders: { imageAssetLoader, fontAssetLoader, familyFontLoader },
+  loaders: { imageAssetLoader, fontAssetLoader, familyFontLoader, audioAssetLoader },
   loop: true,
 });
 player.play();

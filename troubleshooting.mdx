@@ -14,7 +14,10 @@ description: "The problems people hit, and what they mean."
     Cost is per layer, not per second: opacity below 1, isolated groups, shadows and every effect add an offscreen pass per frame, and glass, refraction and custom shaders are evaluated per pixel. Exports render on the GPU only when Chrome, Edge, Brave or Chromium is installed; without one, install one or export from `clayzo preview`. In the document, animate `style.fill.opacity` instead of node `opacity` on solid shapes.
   </Accordion>
   <Accordion title="Something doesn't draw in the WebGL player but does in the preview">
-    The document uses a construct the WebGL player doesn't cover: a matte, a nested clip, audio, or a shader calling a colour-space intrinsic. Run `checkCoverage` and read `reasons`. Change the document, or ship the CanvasKit player for it. See [Choosing a renderer](/playback/choosing-a-renderer).
+    The document uses a construct the WebGL player doesn't cover: a matte, a nested clip, or a shader calling a colour-space intrinsic. Run `checkCoverage` and read `reasons`. Change the document, or ship the CanvasKit player for it. See [Choosing a renderer](/playback/choosing-a-renderer).
+  </Accordion>
+  <Accordion title="This document has sound, and the ffmpeg at … cannot export it">
+    The ffmpeg the export found can't write sound. The ffmpeg the CLI installs carries sound from `@clayzo/ffmpeg-*` 1.2.1; an older `clayzo`, or an ffmpeg you set with `FFMPEG_BIN`, may have none. The export stops before drawing any frames. Run `npx clayzo update`, point `FFMPEG_BIN` at an ffmpeg with the `aac`, `libopus` and `pcm_s24le` encoders and raw `f32le` support, or export the picture alone with `--no-audio`.
   </Accordion>
   <Accordion title="An interactive piece looks wrong in the video">
     Exports don't run bindings; every bound property exports at its keyframed value. Author the resting pose into the timeline and let bindings `add` to it. See [Interactivity](/authoring/interactivity).
