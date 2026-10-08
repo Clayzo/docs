@@ -33,14 +33,15 @@ if (!coverage.supported) {
 }
 ```
 
-`reasons` names the constructs in plain words, such as an unsupported effect, audio nodes, or a custom shader that doesn't compile with the driver's own message. The usual fix is to change the document rather than the host. The check needs a real WebGL2 context, so run it in a browser or a headless one, not in plain Node.
+`reasons` names the constructs in plain words, such as an unsupported effect or a custom shader that doesn't compile with the driver's own message. The usual fix is to change the document rather than the host. The check needs a real WebGL2 context, so run it in a browser or a headless one, not in plain Node.
 
 Register fonts before checking. Text with no font registered is reported as unsupported, which would send every text document to CanvasKit for no reason.
 
 ## What needs CanvasKit today
 
 - Mattes and nested clips.
-- Audio nodes.
 - Custom shaders that call the colour-space intrinsics `toLinearSrgb` or `fromLinearSrgb`.
 
 Every other effect, including glass, refraction, dithering, duotone, mesh gradients and custom shaders, runs in the WebGL player. Per-pixel effects such as dithering produce a slightly different dot pattern when rendered below the document's resolution; use `resolution: "document"` when that matters.
+
+Both players play [audio](/authoring/audio).

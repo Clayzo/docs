@@ -46,11 +46,12 @@ Both files are required, and the `full` build specifically. Serve the `.wasm` wi
 | `canvas` | `HTMLCanvasElement` | The canvas to draw into. Required. |
 | `document` | `AnimationDocument` | The document to play. Required. |
 | `canvasKitUrl` | `string` | Directory serving `canvaskit.js` and `canvaskit.wasm`. Defaults to the pinned CDN. |
-| `loaders` | `PlayerAssetLoaders` | Image and font loaders. See [Fonts and assets](/authoring/fonts-and-assets). |
+| `loaders` | `PlayerAssetLoaders` | Image, font and audio loaders. See [Fonts and assets](/authoring/fonts-and-assets). |
 | `width`, `height` | `number` | Render surface size. Surface size is the throughput dial on effect-heavy documents. |
 | `autoplay` | `boolean` | Start playing once the first frame is ready. |
 | `loop` | `boolean` | Loop playback. Default on. |
 | `speed` | `number` | Playback rate multiplier. |
+| `muted` | `boolean` | Start without sound. Default on. See [Audio](/authoring/audio). |
 | `interactive` | `boolean` | Run the document's pointer bindings. |
 | `interactionElement` | `HTMLElement` | Listen for pointer events on this element instead of the canvas. |
 | `onFrame` | `(stats) => void` | Per-frame `drawMs`, `averageDrawMs`, `framesPerSecond` and `droppedFrames`. |
@@ -60,7 +61,7 @@ Both files are required, and the `full` build specifically. Serve the `.wasm` wi
 
 The promise resolves once assets are warm and the first frame is on screen, so you can hold a loading state until playback is genuinely ready.
 
-The handle is the same as the WebGL player's: `tick`, `playing`, `play()`, `pause()`, `seek(tick)`, `setInput(name, value)`, `fire(name)` and `dispose()`.
+The handle is the same as the WebGL player's: `tick`, `playing`, `hasAudio`, `muted`, `play()`, `pause()`, `seek(tick)`, `setMuted(muted)`, `setInput(name, value)`, `fire(name)` and `dispose()`.
 
 ## Fonts
 

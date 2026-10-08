@@ -1,0 +1,62 @@
+---
+title: "Audio"
+description: "Add a soundtrack or sound effects to a document."
+---
+
+An `audio` node plays an audio file in step with the timeline. The players play it, and mp4, webm and mov exports include it.
+
+## Add a sound
+
+Declare the file as an `audio` asset, like an image or a font:
+
+```json
+"assets": {
+  "score": { "id": "score", "type": "audio", "uri": "audio/score.wav", "mimeType": "audio/wav" }
+}
+```
+
+Then add an `audio` node to the composition's `nodes` and `rootNodeIds`. It draws nothing, but it needs the same base fields as any node. With the `base` helper from [the complete script](/authoring/documents#a-complete-script):
+
+```ts
+import { constant, type AudioNode } from "@clayzo/animation/authoring";
+
+const music: AudioNode = {
+  type: "audio",
+  ...base("music", 0, 0),
+  assetId: "score",
+  volume: constant(1),
+  playbackRate: constant(1),
+  startOffsetTick: 0,
+  loop: true,
+};
+```
+
+| Field | What it does |
+| --- | --- |
+| `startOffsetTick` | The tick the file starts playing at |
+| `volume` | `1` plays the file as recorded; keyframe it for fades |
+| `playbackRate` | `1` plays as recorded, `2` twice as fast |
+| `loop` | Repeat the file when it ends |
+
+The sound is heard only while the node is visible and between its `inTick` and `outTick`. To trim the start of a file, set `startOffsetTick` before `inTick`: at 240 ticks per second, 240 ticks earlier skips the first second.
+
+Use WAV, MP3 or M4A files; they play everywhere.
+
+## Sound in the players
+
+Players start muted, so your page decides when it makes sound. Browsers only allow sound after a click, tap or key press, so turn it on from your own control:
+
+```ts
+soundButton.hidden = !player.hasAudio;
+soundButton.addEventListener("click", () => player.setMuted(!player.muted));
+```
+
+Or pass `muted: false` to `createPlayer` and call `play()` from a click. The [native player](/playback/ios) works the same way with `isMuted`.
+
+The player fetches audio files like images. If you pass your own `loaders`, include an `audioAssetLoader`. A `.clayzo` bundle carries its audio.
+
+## Sound in exports
+
+mp4, webm and mov exports include the sound, matching the players. Other formats are silent. Pass `--no-audio` to leave the sound out.
+
+To listen while you work, press play in [the preview](/authoring/previewing).

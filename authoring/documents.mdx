@@ -130,7 +130,7 @@ npx clayzo render-frame animations/bouncing-dot.json sheet.png --samples 4 --max
 | --- | --- |
 | `canvas` | Width, height, pixel aspect ratio, and a background colour that is metadata only |
 | `timing` | `ticksPerSecond`, the playback `frameRate`, `durationTicks` and `displayStartTick` |
-| `assets` | Fonts and images by id. See [Fonts and assets](/authoring/fonts-and-assets) |
+| `assets` | Fonts, images and audio files by id. See [Fonts and assets](/authoring/fonts-and-assets) and [Audio](/authoring/audio) |
 | `compositions` | Named scenes, each with `nodes` by id and `rootNodeIds` in back-to-front order |
 | `rootCompositionId` | Which composition plays |
 | `interaction` | Inputs, hit areas and bindings. See [Interactivity](/authoring/interactivity) |
@@ -163,6 +163,7 @@ Colours are `{ r, g, b, a }` with channels from 0 to 1, not 0 to 255.
 | `path` | Cubic Bézier contours in local space; `parseSvgPath` turns SVG path data into one |
 | `text` | A run of text in a box, with a font asset or a family name |
 | `image` | An image asset fitted into a box |
+| `audio` | Nothing; plays an audio asset in step with the timeline. See [Audio](/authoring/audio) |
 | `group` | Children, drawn in order, sharing a transform; `isolation: true` fades overlapping children as one |
 | `matte` | Uses one node's alpha or luminance to cut another (CanvasKit player only) |
 | `effect` | Applies an effect to its `inputId` node, which must not be a root node |
