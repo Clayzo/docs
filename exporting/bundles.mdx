@@ -11,7 +11,7 @@ A `.clayzo` file is a document plus every font, image and audio file it referenc
 npx clayzo package animations/hero.json animations/hero.clayzo
 ```
 
-Packaging resolves each asset's `uri` relative to the document, embeds the bytes, and records a manifest. It refuses to build a bundle whose text would render as nothing, so a missing font fails here rather than on someone's screen. A missing image or [audio](/authoring/audio) file fails it too, naming the asset. `--allow-incomplete` overrides that for deliberate partial packaging.
+Packaging resolves each asset's `uri` relative to the document, embeds the bytes, and records a manifest. It refuses to build a bundle whose text would render as nothing, so a missing font fails here rather than on someone's screen. `--allow-incomplete` overrides that for deliberate partial packaging.
 
 From a script, the same operation is one call:
 

@@ -1,28 +1,21 @@
 ---
 title: "Audio"
-description: "Soundtracks and sound effects in a document, how the players play them, and which exports carry them."
+description: "Add a soundtrack or sound effects to a document."
 ---
 
-A document plays sound through `audio` nodes. Each one plays an audio file, declared as an asset, in step with the timeline. Both players play it in the browser, and mp4, webm and mov exports carry it.
+An `audio` node plays an audio file in step with the timeline. The players play it, and mp4, webm and mov exports include it.
 
-## In the document
+## Add a sound
 
-Declare the file as an `audio` asset, the way you declare an image or a font:
+Declare the file as an `audio` asset, like an image or a font:
 
 ```json
 "assets": {
-  "score": {
-    "id": "score",
-    "type": "audio",
-    "uri": "audio/score.wav",
-    "mimeType": "audio/wav"
-  }
+  "score": { "id": "score", "type": "audio", "uri": "audio/score.wav", "mimeType": "audio/wav" }
 }
 ```
 
-The `uri` resolves relative to the document on disk, or it can be a data URI. `durationTicks` is optional: set it shorter than the file to play, and loop, only that much of it.
-
-Then play it with an `audio` node. It draws nothing, but it's a node like the others: it needs every base field, and it plays only if it's reachable from `rootNodeIds`. Its `opacity`, `transform` and `blendMode` have no effect. With the `base` helper from [the complete script](/authoring/documents#a-complete-script):
+Then add an `audio` node to the composition's `nodes` and `rootNodeIds`. It draws nothing, but it needs the same base fields as any node. With the `base` helper from [the complete script](/authoring/documents#a-complete-script):
 
 ```ts
 import { constant, type AudioNode } from "@clayzo/animation/authoring";
@@ -38,94 +31,32 @@ const music: AudioNode = {
 };
 ```
 
-Add it to the composition's `nodes` and `rootNodeIds` like any other node. There's no builder for audio nodes. The types are `AudioNode` and `AudioAsset`, from `@clayzo/animation/authoring`.
-
 | Field | What it does |
 | --- | --- |
-| `assetId` | The `audio` asset to play |
-| `startOffsetTick` | The tick at which the file's first sample plays |
-| `volume` | A linear gain. `1` plays the file as recorded, `0.5` at half the amplitude, and above `1` boosts it |
-| `playbackRate` | `1` plays as recorded, `2` twice as fast and higher in pitch, and `0` holds it silent. Capped at 16 |
+| `startOffsetTick` | The tick the file starts playing at |
+| `volume` | `1` plays the file as recorded; keyframe it for fades |
+| `playbackRate` | `1` plays as recorded, `2` twice as fast |
 | `loop` | Repeat the file when it ends |
 
-`volume` and `playbackRate` are animatables, so you can keyframe them. Keyframe `volume` for fades.
+The sound is heard only while the node is visible and between its `inTick` and `outTick`. To trim the start of a file, set `startOffsetTick` before `inTick`: at 240 ticks per second, 240 ticks earlier skips the first second.
 
-## When it plays
+Use WAV, MP3 or M4A files; they play everywhere.
 
-- An audio node is heard only while it's `visible` and between its own `inTick` and `outTick` and those of every group above it. It never plays past the end of the composition.
-- Before `startOffsetTick` it's silent. Past the end of the file it's silent, unless `loop` is true, in which case the file repeats.
-- `startOffsetTick` is a position on the timeline, like `inTick` and `outTick`, not a position in the file. To move a cue, move all three. To skip the first second of a file at 240 ticks per second, set `startOffsetTick` 240 ticks before `inTick`.
-- Keyframed rates are summed over time, so a change to `playbackRate` part-way moves everything after it.
-- Several audio nodes mix together. A mix louder than full scale is clipped.
-- An audio node inside a component plays once for each instance.
+## Sound in the players
 
-## File formats
-
-Use WAV, MP3 or AAC (`.m4a`). They play in every browser and export everywhere. Exports also read AIFF, Ogg (Vorbis or Opus), FLAC and WebM audio, but players decode with the browser, and older versions of Safari can't play Ogg.
-
-## In the players
-
-Both players play a document's audio nodes with the picture. The sound follows the playhead through play, pause, seek and loops. It's silent while paused, at the end of a document that doesn't loop, while playing backwards, in a background tab, and while the WebGL player is off screen, since it pauses there.
-
-[Native playback on iOS and macOS](/playback/ios) plays it too, and also starts muted: set `isMuted` to false.
-
-## Sound starts muted
-
-Players start muted, so your page decides when it makes sound. Browsers only start sound from a click, tap or key press, so turn it on from one:
-
-- Call `setMuted(false)` from your own sound button.
-- Or pass `muted: false` to `createPlayer` and call `play()` from a click.
-
-A player never starts sound from an unrelated click elsewhere on the page.
-
-Players have no built-in controls. Build your own play button, scrubber and sound toggle on the handle, and show the sound toggle only when the document has audio:
+Players start muted, so your page decides when it makes sound. Browsers only allow sound after a click, tap or key press, so turn it on from your own control:
 
 ```ts
-import { createPlayer } from "@clayzo/webgl-player";
-
-const player = await createPlayer({ canvas, document, loop: true });
-player.play();
-
 soundButton.hidden = !player.hasAudio;
 soundButton.addEventListener("click", () => player.setMuted(!player.muted));
 ```
 
-The CanvasKit player takes the same `muted` option, and its handle has the same `hasAudio`, `muted` and `setMuted(muted)`.
+Or pass `muted: false` to `createPlayer` and call `play()` from a click. The [native player](/playback/ios) works the same way with `isMuted`.
 
-## Where the files come from
+The player fetches audio files like images. If you pass your own `loaders`, include an `audioAssetLoader`. A `.clayzo` bundle carries its audio.
 
-By default a player fetches each audio file from its asset's `uri`, the same way it fetches images: relative to the page. It fetches audio only for documents that have audio nodes. To serve the files yourself, pass `loaders.audioAssetLoader`, which returns the file's bytes or `null`. See [In the browser](/authoring/fonts-and-assets#in-the-browser).
+## Sound in exports
 
-Passing `loaders` replaces the default loaders, so a `loaders` object without `audioAssetLoader` plays the document silently.
+mp4, webm and mov exports include the sound, matching the players. Other formats are silent. Pass `--no-audio` to leave the sound out.
 
-A `.clayzo` bundle carries its own audio. `clayzo package` embeds audio files with the images and fonts, and `readClayzoBundle` returns an `audioAssetLoader` with the other loaders; pass it to the player with them, as in [Playing a bundle](/exporting/bundles#playing-a-bundle). Packaging fails, naming the asset, when an audio file can't be found, unless you pass `--allow-incomplete`.
-
-## In exports
-
-mp4, webm and mov carry the document's sound:
-
-| Format | Sound |
-| --- | --- |
-| `mp4` | AAC, 192 kbps |
-| `webm` | Opus, 160 kbps |
-| `mov` | 24-bit PCM |
-
-The sound is the document's audio nodes mixed exactly as the players play them, with the same offsets, loops, fades and rates. It's exactly as long as the picture and starts at the export's first frame, so a `--start` and `--end` range gets the matching stretch of sound. It's the same on every `--backend` and from the preview's export panel.
-
-`gif`, `webp`, `png-sequence` and `svg` have no sound track. Those exports leave the sound out and print a note saying so; that isn't an error. To export the picture alone in a format that has sound, pass `--no-audio`:
-
-```bash
-npx clayzo export animations/hero.json hero.mp4 --format mp4 --no-audio
-```
-
-A missing audio file fails the export, naming the asset, rather than writing a silent file. If an export stops with an error that begins "This document has sound, and the ffmpeg at … cannot export it", see [Troubleshooting](/troubleshooting).
-
-## Checking it
-
-`render-frame` and `review` have no sound. Listen in the preview: it plays the document with sound when you press play, and the sound button next to the playback controls, or the M key, turns it off and on.
-
-```bash
-npx clayzo preview animations/hero.json
-```
-
-An export decodes its sound back from the file as part of verification. In the JSON result, `metadata.audioMuxed` is `true` when the file carries sound, and `verification.audioSeconds` is the length of sound decoded back, which should match the picture's. `--no-verify` skips the check.
+To listen while you work, press play in [the preview](/authoring/previewing).

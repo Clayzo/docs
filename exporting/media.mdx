@@ -53,9 +53,8 @@ Exports render on your GPU when that's faster, in a Chrome, Edge, Brave or Chrom
 ## What an export contains
 
 - **The timeline as authored.** Interaction bindings never run during export. See [Interactivity](/authoring/interactivity) for what that means for how you author.
-- **The document's sound**, in mp4 (AAC), webm (Opus) and mov (PCM), mixed as the players play it and exactly as long as the picture. The other formats leave it out and print a note. `--no-audio` exports the picture alone. See [Audio](/authoring/audio).
 - **A progress sheet.** `hero.mp4.preview.png` with the first twelve frames is written beside the output. It's a convenience, not a deliverable; `--progress-preview <file>` moves it and `--no-progress` skips it.
-- **A verified file.** The result, sound included, is decoded after encoding to confirm it plays. `--no-verify` skips that.
+- **A verified file.** The result is decoded after encoding to confirm it plays. `--no-verify` skips that.
 
 ## Options reference
 
