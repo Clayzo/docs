@@ -54,7 +54,7 @@ struct HeroView: View {
 }
 ```
 
-A bundle carries its fonts and images, so this is the whole integration. The player sizes itself to the document's aspect ratio and starts playing, looping, as soon as it appears. See [Bundles](/exporting/bundles) for what goes into one.
+A bundle carries its fonts, images and audio, so this is the whole integration. The player sizes itself to the document's aspect ratio and starts playing, looping, as soon as it appears. A document with [audio](/authoring/audio) starts muted; pass `isMuted: false` to hear it. See [Bundles](/exporting/bundles) for what goes into one.
 
 You can also fetch a bundle over the network and pass the bytes to `ClayzoBundle(data:)`; the file format is the same one the browser players load.
 
@@ -82,7 +82,7 @@ Font ids and image ids match the document's asset ids. Register the fallback fac
 
 ```swift
 let player = try ClayzoPlayerView.make(frame: bounds)
-try player.load(bundle)          // fonts, images and document in one call
+try player.load(bundle)          // fonts, images, audio and document in one call
 view.addSubview(player)
 ```
 
@@ -92,7 +92,9 @@ view.addSubview(player)
 | `isPlaying` | Start and stop the clock. |
 | `loops` | Loop playback. On by default. |
 | `tick` | The current tick. Set it to seek. |
-| `setImage(_:data:)`, `registerFont(id:data:)` | Register assets by id. |
+| `setImage(_:data:)`, `setAudio(_:data:)`, `registerFont(id:data:)` | Register assets by id. |
+| `isMuted` | Mute the document's audio. On by default. |
+| `hasAudio` | Whether the document has audio nodes. |
 | `setInput(_:_:)`, `fire(_:)` | Set a declared input, or fire a trigger. |
 | `onInteractionEvent` | Receive hit-area events. |
 | `isInteractionEnabled` | Forward touches to the document. On by default. |
@@ -125,13 +127,13 @@ A number input is clamped to the range the document declares. Values are `.numbe
 
 ## Size and App Clips
 
-The package adds about 660 KB to an app, so it fits comfortably inside an App Clip's budget. Documents are separate: a bundle's size is its images and fonts. Package images at the size they are displayed rather than at their source resolution, and consider fetching bundles at runtime instead of shipping them in the clip — the limit applies to the installed clip, not to what it downloads.
+The package adds about 1.5 MB to an app, so it fits comfortably inside an App Clip's budget. Documents are separate: a bundle's size is its images, fonts and audio. Package images at the size they are displayed rather than at their source resolution, and consider fetching bundles at runtime instead of shipping them in the clip — the limit applies to the installed clip, not to what it downloads.
 
 ## What renders
 
 Everything the WebGL player draws: shapes, paths, text, images, gradients, clips, mattes, blend modes, blur and drop shadow, glass, refraction, dithering, duotone, pixelation, mesh gradients and custom shaders — including shaders that call `toLinearSrgb` and `fromLinearSrgb`.
 
-Not yet: Lottie nodes, sound from [audio nodes](/authoring/audio), and a second finger (the first touch is the pointer).
+Not yet: Lottie nodes and a second finger (the first touch is the pointer).
 
 Two things to know when authoring for phones:
 
