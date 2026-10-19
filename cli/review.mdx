@@ -12,16 +12,21 @@ clayzo review <document.json> [output-directory] [options]
 | `--backgrounds <a,b,c>` | Backgrounds to render each sample on. Default `checker,light,dark`. |
 | `--max-dimension <px>` | Bound the longer side of each frame. Default 512. |
 | `--full-resolution` | Render at the document's size. Conflicts with `--max-dimension`. |
+| `--display-width <px>` | CSS width a laptop page shows the animation at, for the web playback numbers. Default 720. |
 
 ## What it writes
 
 | File | Contents |
 | --- | --- |
-| `review.json` | The document revision, the sampled ticks, `analysis.diagnostics` (blank frames, clipping, contrast, motion) and per-frame renderer diagnostics under `frames[].rendererDiagnostics` |
+| `review.json` | The document revision, the sampled ticks, `analysis.diagnostics` (blank frames, clipping, contrast, motion, web playback), per-frame renderer diagnostics under `frames[].rendererDiagnostics`, and `performance` |
 | `contact-sheet.png` | Every sample on every background, labelled |
 | `frames/` | The individual frames |
 
 Samples are chosen across the timeline, weighted toward where keyframes are dense. Text documents normally carry a `text.shaping_fallback` diagnostic; it means deterministic glyph measurement was used and is not an error.
+
+## Web playback
+
+`performance` says how the animation plays in the [WebGL player](/playback/webgl-player): what it downloads, and on an M-series Mac, a mid-range Windows laptop, an old Intel laptop or Chromebook, a mid-range Android phone and an iPhone, its frame time, the share of frames drawn and the resolution it settles at. A device that would drop frames gets a `performance.frame_budget` warning that names what costs the most. Rows marked `estimate` are scaled from a measured device. The numbers are the same on whatever machine runs the review.
 
 Run it before shipping rather than after every edit; a frame sheet from [`render-frame`](/cli/render-frame) is the quick check.
 
