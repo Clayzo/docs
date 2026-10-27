@@ -1,0 +1,47 @@
+---
+title: "Video"
+description: "Put footage in a document, with animation on top."
+---
+
+A `video` node plays a clip in step with the timeline. It draws like an image and its sound plays like an [audio](/authoring/audio) node's. The web players play it, and video, GIF, WebP and PNG exports include it.
+
+## Ready a clip
+
+```bash
+clayzo import-video footage/hero.mov --document hero.json
+```
+
+It prints the `video` asset to add to the document's `assets`. Clips that every browser can show exactly are used as they are. A clip with a variable frame rate, HDR, or HEVC or ProRes, which is most phone and screen-recording footage, is encoded to an H.264 MP4 beside it.
+
+## Add a clip
+
+```ts
+import { readFileSync } from "node:fs";
+import { video, videoAsset } from "@clayzo/animation/authoring";
+
+const clip = videoAsset("hero", "footage/hero.mp4", readFileSync("footage/hero.mp4"));
+// assets: { hero: clip }, and the node listed in rootNodeIds:
+const shot = video("shot-a", {
+  asset: clip,
+  inTick: 0,
+  outTick: 960,
+  x: 960,
+  y: 540,
+  width: 1920,
+  height: 1080,
+  sourceStartTick: 480,
+});
+```
+
+| Field | What it does |
+| --- | --- |
+| `sourceStartTick` | Where in the file the clip starts |
+| `sourceDurationTicks` | How much of the file the clip uses |
+| `playbackRate` | `1` plays as recorded, `0` holds the picture |
+| `volume` | `1` plays the clip's sound as recorded, `0` mutes it |
+| `loop` | Repeat the part of the file the clip uses |
+| `fit` | `cover` (the default) fills the box and crops, `contain` fits inside it |
+
+Cut between shots by giving clips adjacent `inTick` and `outTick`. Mask footage with a matte, and put titles, glass and shaders over it as later nodes.
+
+The [iOS player](/playback/ios) doesn't draw footage yet.

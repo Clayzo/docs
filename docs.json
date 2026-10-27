@@ -30,6 +30,7 @@
               "authoring/interactivity",
               "authoring/fonts-and-assets",
               "authoring/audio",
+              "authoring/video",
               "authoring/previewing"
             ]
           },

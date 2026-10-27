@@ -70,6 +70,7 @@ const player = await createPlayer({
     familyFontLoader: async (family, weight) =>
       family === "Inter" ? bytesFrom("/fonts/Inter.ttf") : null,
     audioAssetLoader: async (asset) => bytesFrom(`/cdn/${asset.id}`),
+    videoAssetLoader: async (asset) => bytesFrom(`/cdn/${asset.id}`),
   },
 });
 ```

@@ -35,13 +35,13 @@ import { readClayzoBundle } from "@clayzo/animation/bundle";
 import { createPlayer } from "@clayzo/webgl-player";
 
 const bytes = new Uint8Array(await (await fetch("/animations/hero.clayzo")).arrayBuffer());
-const { document, imageAssetLoader, fontAssetLoader, familyFontLoader, audioAssetLoader } =
+const { document, imageAssetLoader, fontAssetLoader, familyFontLoader, audioAssetLoader, videoAssetLoader } =
   await readClayzoBundle(bytes);
 
 const player = await createPlayer({
   canvas,
   document,
-  loaders: { imageAssetLoader, fontAssetLoader, familyFontLoader, audioAssetLoader },
+  loaders: { imageAssetLoader, fontAssetLoader, familyFontLoader, audioAssetLoader, videoAssetLoader },
   loop: true,
 });
 player.play();
