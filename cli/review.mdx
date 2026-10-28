@@ -12,6 +12,7 @@ clayzo review <document.json> [output-directory] [options]
 | `--backgrounds <a,b,c>` | Backgrounds to render each sample on. Default `checker,light,dark`. |
 | `--max-dimension <px>` | Bound the longer side of each frame. Default 512. |
 | `--full-resolution` | Render at the document's size. Conflicts with `--max-dimension`. |
+| `--backend <auto\|cpu\|gpu>` | Where frames are drawn. `auto` (default) uses the GPU, through an installed Chrome, Edge, Brave or Chromium, for a document with shader effects (glass, refraction, dithering, custom SkSL), so its frames match a GPU export, and the CPU otherwise. `gpu` and `cpu` force one. |
 
 ## What it writes
 
