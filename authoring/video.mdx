@@ -11,7 +11,7 @@ A `video` node plays a clip in step with the timeline. It draws like an image an
 clayzo import-video footage/hero.mov --document hero.json
 ```
 
-It prints the `video` asset to add to the document's `assets`. Clips that every browser can show exactly are used as they are. A clip with a variable frame rate, HDR, or HEVC or ProRes, which is most phone and screen-recording footage, is encoded to an H.264 MP4 beside it.
+It prints the `video` asset to add to the document's `assets`. Clips that every browser can show exactly are used as they are. A clip with a variable frame rate, HDR, or HEVC or ProRes, which is most phone and screen-recording footage, is encoded to an H.264 MP4 beside it. If it can't tell a clip's frame rate, it asks you to pass `--fps`.
 
 ## Add a clip
 
