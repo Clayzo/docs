@@ -1,0 +1,55 @@
+---
+title: "Generating images"
+description: "Make the images an animation uses, from your agent, with credits."
+---
+
+Your agent can generate a photo, an illustration or a texture when a piece needs one, then animate it like any other [image](/authoring/fonts-and-assets#images): move it, mask it, or run effects and custom shaders over it. Clayzo is free; generated images use credits.
+
+## Generate an image
+
+```bash
+clayzo image generate "a teal glass marble on a white studio sweep" --out assets/marble.png
+```
+
+It prints the file, its width and height, the credits it cost and the balance left:
+
+```json
+{"file":"/project/assets/marble.png","width":1376,"height":768,"mime":"image/png","bytes":1092051,"quality":"standard","size":"1K","aspect":"16:9","credits":7,"balance":43,"id":"j57dz4yx3r0jdq3mpvsa3rxsms8jbh03"}
+```
+
+| Option | What it does |
+| --- | --- |
+| `--out <file>` | Where to save it. The extension follows the image type that comes back, so read `file` from the output. |
+| `--quality <draft\|standard\|pro>` | Faster or more detailed. `standard` is the default; `draft` is 1K only. |
+| `--size <1K\|2K\|4K>` | About 1, 4 or 16 megapixels. Default `1K`. |
+| `--aspect <w:h>` | `1:1` (default), `2:3`, `3:2`, `3:4`, `4:3`, `4:5`, `5:4`, `9:16`, `16:9` or `21:9`. |
+| `--ref <image>` | A PNG, JPEG or WebP to work from. Repeat for up to 3, 3 MB in total. |
+| `--force` | Replace the file if it exists. |
+
+Images come back with a background; there is no transparency. Mask or matte one in the document to cut it out.
+
+If a download is interrupted, fetch the same image again at no cost, for a day:
+
+```bash
+clayzo image download <id> --out assets/marble.png
+```
+
+## Credits
+
+A credit is $0.01. Every workspace starts with 50, and credits never expire. You're only charged for an image that's delivered; one that fails or is refused costs nothing.
+
+| Quality | 1K | 2K | 4K |
+| --- | --- | --- | --- |
+| `draft` | 6 | – | – |
+| `standard` | 7 | 9 | 19 |
+| `pro` | 25 | 25 | 40 |
+
+A reference image can add a credit. See your balance and these prices with:
+
+```bash
+clayzo credits
+```
+
+Buy credits, or turn on auto top-up, on the [Credits page](https://app.clayzo.com/dashboard/credits). When a workspace runs out, `clayzo image generate` exits with code `3` and `CLAYZO_CREDITS_REQUIRED`, with the link to add more.
+
+Generating images needs [`clayzo login`](/cli/auth) or a CI token in `CLAYZO_TOKEN`.
