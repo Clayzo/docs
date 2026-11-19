@@ -69,10 +69,10 @@ The id matches the document's font asset id. Documents packaged as `.clayzo` car
 ```ts
 import { checkCoverage } from "@clayzo/webgl-player";
 
-const { supported, reasons } = await checkCoverage(document);
+const { supported, reasons } = await checkCoverage(document, loaders);
 ```
 
-Run it over every document you ship. See [Choosing a renderer](/playback/choosing-a-renderer).
+Pass the `loaders` you give `createPlayer`, or a bundle's: text counts as drawn only in a face they supply. Run it over every document you ship. See [Choosing a renderer](/playback/choosing-a-renderer).
 
 ## Many players on one page
 
