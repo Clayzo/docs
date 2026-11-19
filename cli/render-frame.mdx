@@ -14,6 +14,7 @@ clayzo render-frame <document.json> [output.png] [options]
 | `--seam` | Render the last displayed frame beside the first and report their difference. |
 | `--max-dimension <px>` | Bound the longer side of the render. |
 | `--full-resolution` | Render at the document's size. Conflicts with `--max-dimension`. |
+| `--backend <auto\|cpu\|gpu>` | Where frames are drawn. `auto` (default) uses the GPU, through an installed Chrome, Edge, Brave or Chromium, for a document with shader effects (glass, refraction, dithering, custom SkSL), so its frames match a GPU export, and the CPU otherwise. `gpu` and `cpu` force one. |
 
 ## Examples
 
