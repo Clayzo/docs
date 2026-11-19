@@ -31,6 +31,7 @@
               "authoring/fonts-and-assets",
               "authoring/audio",
               "authoring/video",
+              "authoring/images",
               "authoring/previewing"
             ]
           },

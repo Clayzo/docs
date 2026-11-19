@@ -16,6 +16,9 @@ clayzo <command> [input] [output] [options]
 | [`package`](/cli/package) | Build a portable `.clayzo` bundle | Yes |
 | [`export`](/cli/export) | Export MP4, MOV, GIF, WebM, WebP or a PNG sequence | Yes |
 | [`import-video`](/authoring/video#ready-a-clip) | Ready a video clip for a document | Yes |
+| [`image generate`](/authoring/images) | Generate an image for a document, paid with credits | Yes |
+| [`image download`](/authoring/images) | Download a generated image again | Yes |
+| [`credits`](/authoring/images#credits) | Show the credit balance and image prices | Yes |
 | [`doctor`](/cli/doctor) | Show what's installed, sign in, and what is behind | No |
 | [`update`](/cli/doctor) | Update the CLI, the project's packages and the skills together | No |
 | [`login`](/cli/auth) | Authorize this device through the browser | — |
@@ -30,7 +33,7 @@ clayzo <command> [input] [output] [options]
 - **Input first, output second.** The document path comes first; the output path, where there is one, second; options after.
 - **Ticks.** Every time option is in ticks, the document's own time base. At the conventional 240 ticks per second and 30 fps, one frame is 8 ticks.
 - **Structured output.** Commands print a JSON result on stdout. Progress and notices go to stderr, prefixed `[clayzo]`, so stdout stays parseable. Errors are JSON objects with a `code` such as `CLAYZO_AUTH_REQUIRED`.
-- **Exit codes.** `0` on success, `1` on an error, `2` when the CLI version is below the minimum the service supports or an update is required.
+- **Exit codes.** `0` on success, `1` on an error, `2` when the CLI version is below the minimum the service supports or an update is required, `3` when the workspace needs more [credits](/authoring/images#credits).
 - **Sizes.** `--max-dimension <px>` bounds the longer side of a render; `--full-resolution` renders at the document's size. The two conflict.
 
 ## Environment variables
